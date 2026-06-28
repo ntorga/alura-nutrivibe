@@ -104,19 +104,55 @@ Collections are SQLite tables defined by name and fields. Three types:
 
 #### Available field types
 
-- `BoolField` — `true`/`false` (default: `false`)
-- `NumberField` — numeric/float64 (default: `0`)
-- `TextField` — string (default: `""`)
-- `EmailField` — email string (default: `""`)
-- `URLField` — URL string (default: `""`)
-- `EditorField` — HTML text (default: `""`)
-- `DateField` — RFC3339 datetime `Y-m-d H:i:s.uZ` (default: `""`)
-- `AutodateField` — auto-set on create/update
-- `SelectField` — single/multiple from predefined list (default: `""` or `[]`)
-- `FileField` — file reference, stored on disk or S3 (default: `""` or `[]`)
-- `RelationField` — reference to another collection record (default: `""` or `[]`)
-- `JSONField` — any serialized JSON, nullable (default: `null`)
-- `GeoPoint` — `{lon, lat}` coordinates (default: `{lon:0, lat:0}`)
+REST API type names (lowercase) and their Go equivalents:
+
+- `text` (`TextField`) — string (default: `""`)
+- `number` (`NumberField`) — numeric/float64 (default: `0`)
+- `bool` (`BoolField`) — `true`/`false` (default: `false`)
+- `email` (`EmailField`) — email string (default: `""`)
+- `url` (`URLField`) — URL string (default: `""`)
+- `editor` (`EditorField`) — HTML text (default: `""`)
+- `date` (`DateField`) — RFC3339 datetime `Y-m-d H:i:s.uZ` (default: `""`)
+- `autodate` (`AutodateField`) — auto-set on create/update
+- `select` (`SelectField`) — single/multiple from predefined list (default: `""` or `[]`)
+- `file` (`FileField`) — file reference, stored on disk or S3 (default: `""` or `[]`)
+- `relation` (`RelationField`) — reference to another collection record (default: `""` or `[]`)
+- `json` (`JSONField`) — any serialized JSON, nullable (default: `null`)
+- `geoPoint` (`GeoPoint`) — `{lon, lat}` coordinates (default: `{lon:0, lat:0}`)
+
+#### REST API — collection CRUD
+
+Create collections programmatically via the REST API (requires superuser auth):
+
+```bash
+# Auth as superuser
+superuserToken=$(curl -s -X POST 'http://127.0.0.1:8090/api/collections/_superusers/auth-with-password' \
+  -H 'Content-Type: application/json' \
+  -d '{"identity":"admin@nutrivibe.local","password":"NutriVibe2026!"}' \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
+
+# Create collection (use "fields" key, NOT "schema")
+curl -X POST 'http://127.0.0.1:8090/api/collections' \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: $superuserToken" \
+  -d '{
+    "name": "posts",
+    "type": "base",
+    "fields": [
+      {"name": "title", "type": "text", "options": {"min": 1}},
+      {"name": "views", "type": "number"},
+      {"name": "status", "type": "select", "options": {"values": ["draft","published"], "maxSelect": 1}}
+    ],
+    "listRule": "",
+    "viewRule": ""
+  }'
+```
+
+**Gotchas:**
+- Use `fields` key (not `schema`) when creating collections via REST API.
+- Auth token goes in the `Authorization` header, not as a query parameter.
+- Number fields need no `options` object (or pass `{}`).
+- Select fields may fail validation via REST API in some versions — fall back to `text` type if needed.
 
 #### Field set modifiers (for create/update)
 
