@@ -399,12 +399,133 @@ superuserClient.authStore.save('YOUR_GENERATED_SUPERUSER_TOKEN');
 export default superuserClient;
 ```
 
+### 9. JS hooks (`pb_hooks/`)
+
+PocketBase has an embedded ES5 JavaScript engine (goja). Create `*.pb.js` files inside `pb_hooks/` next to the executable to add custom routes, middleware, and event hooks. The process auto-reloads on file changes (UNIX only).
+
+#### Custom routes with `routerAdd()`
+
+```javascript
+// register "POST /api/meals/parse" (allowed for everyone)
+routerAdd("POST", "/api/meals/parse", (e) => {
+    let mealText = e.requestInfo().body.text
+    return e.json(200, { result: mealText })
+})
+
+// register a route that requires authentication
+routerAdd("POST", "/api/meals/save", (e) => {
+    let authRecord = e.auth
+    return e.json(200, { userId: authRecord.id })
+}, $apis.requireAuth())
+```
+
+If your route path starts with `/api/`, prefix with a unique app name (e.g., `/api/meals/...`) to avoid collisions with system routes.
+
+#### Reading request data
+
+```javascript
+routerAdd("POST", "/api/meals/parse", (e) => {
+    let requestData = e.requestInfo()
+    let mealText = requestData.body.text
+    let searchFilter = requestData.query["search"]
+    let customHeader = requestData.headers["some_header"]
+    let authRecord = requestData.auth
+    return e.json(200, { mealText, searchFilter, customHeader })
+})
+```
+
+#### Writing responses
+
+```javascript
+e.json(200, { message: "success" })
+e.string(200, "plain text")
+e.html(200, "<h1>Hello</h1>")
+e.redirect(307, "https://example.com")
+e.noContent(204)
+```
+
+#### Error responses
+
+```javascript
+throw new BadRequestError("InvalidInput")               // 400
+throw new UnauthorizedError("NotAuthenticated")          // 401
+throw new ForbiddenError("AccessDenied")                 // 403
+throw new NotFoundError("RecordNotFound")                // 404
+throw new InternalServerError("InternalFailure")         // 500
+
+// with validation data
+throw new ApiError(400, "ValidationFailed", {
+    field: new ValidationError("invalid_field", "Field is required")
+})
+```
+
+#### Sending HTTP requests to external APIs
+
+```javascript
+let externalApiResponse = $http.send({
+    url: "https://api.example.com/endpoint",
+    method: "POST",
+    headers: { "content-type": "application/json", "authorization": "Bearer TOKEN" },
+    body: JSON.stringify({ key: "value" }),
+    timeout: 120
+})
+
+let responseStatusCode = externalApiResponse.statusCode
+let responseBody = externalApiResponse.json
+let responseHeaders = externalApiResponse.headers
+```
+
+#### Database operations inside hooks
+
+Use `$app` to access the database. Common operations:
+
+```javascript
+// find records by filter
+let foodRecords = $app.findRecordsByFilter("foods", "category='Frutas'", "-energy_kcal", 600, 0)
+
+// find one by ID
+let targetRecord = $app.findRecordById("foods", "RECORD_ID")
+
+// access fields
+let foodDescription = targetRecord.getString("description")
+let foodTacoId = targetRecord.getInt("taco_id")
+let foodEnergy = targetRecord.getFloat("energy_kcal")
+```
+
+#### Shared modules
+
+Handler functions are isolated — variables declared outside are not accessible inside. Use `require()` to share code:
+
+```javascript
+// pb_hooks/utils.js
+module.exports = {
+    formatFoodCatalog: (foodRecords) => foodRecords.map(foodRecord => ({ taco_id: foodRecord.getInt("taco_id"), description: foodRecord.getString("description") }))
+}
+
+// pb_hooks/main.pb.js
+routerAdd("GET", "/api/meals/catalog", (e) => {
+    let catalogUtils = require(`${__hooks}/utils.js`)
+    let foodRecords = $app.findRecordsByFilter("foods", "1=1", "taco_id", 1000, 0)
+    return e.json(200, catalogUtils.formatFoodCatalog(foodRecords))
+})
+```
+
+#### Caveats
+
+- **Handler isolation.** Each handler runs in its own serialized context. No access to outer-scope variables. Use `require()` with local modules.
+- **No `setTimeout`/`setInterval`.** No async scheduling inside handlers.
+- **No browser APIs.** No `window`, `fetch`, `buffer`. Use `$http.send()` for HTTP requests.
+- **Only CommonJS.** `require()` works; ES modules need precompilation.
+- **JSON fields** require `record.get()` and `record.set()` helpers.
+- **`__hooks` global** provides the absolute path to the `pb_hooks` directory.
+
 ## Guardrails
 
 - **Client-side SPA recommended.** PocketBase is designed for direct client-to-API communication. Avoid JS SSR meta-frameworks (Nuxt, Next.js, SvelteKit) unless you understand the trade-offs.
 - **No htmx/Turbo/Unpoly.** PocketBase's JSON API and stateless design don't play well with SSR-first tools.
 - **`pb_data` in `.gitignore`.** Application data and uploads should not be committed.
 - **`pb_migrations` in repo.** Migration files are safe to commit and should be version-controlled.
+- **`pb_hooks` in repo.** Custom JS hook files should be version-controlled.
 - **Date format is RFC3339.** Always use `Y-m-d H:i:s.uZ` format for date comparisons in filters.
 - **Fields are non-nullable.** All fields (except JSONField) use zero-default when missing.
 - **Batch requests need explicit enable.** Toggle in Dashboard > Settings > Application.
