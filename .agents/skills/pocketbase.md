@@ -1,7 +1,7 @@
 ---
 shortDescription: "Single-file Go backend with embedded SQLite, realtime subscriptions, auth, and REST API"
-version: "1.1.0"
-lastUpdated: "2026-06-27"
+version: "1.2.0"
+lastUpdated: "2026-06-28"
 ---
 
 ## Purpose
@@ -12,21 +12,70 @@ PocketBase is an open-source backend in a single Go binary. It provides an embed
 
 ### 1. Setup and installation
 
-Download the prebuilt binary from [GitHub Releases](https://github.com/pocketbase/pocketbase/releases) or install via Go:
+#### Download the binary (agent-driven)
+
+**Pre-flight 1/2: reject PowerShell.** PocketBase install requires bash or zsh:
 
 ```bash
-# Standalone binary (recommended for quick start)
-# Download from https://github.com/pocketbase/pocketbase/releases
-./pocketbase serve
-
-# Or as Go framework
-go get github.com/pocketbase/pocketbase
+[ -z "$PSVersionTable" ] || { echo "ERROR: PowerShell detected. Open bash/zsh or install WSL: wsl --install"; exit 1; }
 ```
+
+**Pre-flight 2/2: ensure curl and unzip exist.** Install if missing:
+
+```bash
+osName=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+installPackage() {
+  local packageName="$1"
+  [ "$osName" = "darwin" ] && brew install "$packageName" && return
+  [ -f /etc/os-release ] || { echo "ERROR: Cannot detect distro. Install $packageName manually."; exit 1; }
+  . /etc/os-release
+  local distroId="$ID"
+  case "$distroId" in
+    debian|ubuntu|linuxmint)        sudo apt-get install -y "$packageName" ;;
+    fedora|rhel|centos|rocky|alma)  sudo dnf install -y "$packageName" ;;
+    *)                              echo "ERROR: Unsupported distro '$distroId'. Install $packageName manually."; exit 1 ;;
+  esac
+}
+
+command -v curl   &>/dev/null || installPackage curl
+command -v unzip  &>/dev/null || installPackage unzip
+```
+
+Then detect architecture, fetch latest version, download, and extract:
+
+```bash
+# Detect architecture
+cpuArch=$(uname -m)
+case "$cpuArch" in
+  x86_64)  cpuArch="amd64" ;;
+  aarch64) cpuArch="arm64" ;;
+  armv7l)  cpuArch="armv7" ;;
+esac
+
+# Fetch latest version from GitHub API
+latestVersion=$(curl -s https://api.github.com/repos/pocketbase/pocketbase/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+
+# Download and extract
+downloadUrl="https://github.com/pocketbase/pocketbase/releases/download/v${latestVersion}/pocketbase_${latestVersion}_${osName}_${cpuArch}.zip"
+curl -L -o /tmp/pocketbase.zip "$downloadUrl"
+unzip /tmp/pocketbase.zip -d ./pocketbase
+rm /tmp/pocketbase.zip
+
+# Verify
+./pocketbase/pocketbase --version
+```
+
+Available OS/arch combinations from GitHub releases:
+- OS: `linux`, `darwin`, `windows`
+- Arch: `amd64`, `arm64`, `armv7`, `ppc64le`, `s390x`
+
+#### First run
 
 First run generates an installer link for the superuser account. Create manually if needed:
 
 ```bash
-./pocketbase superuser create EMAIL PASS
+./pocketbase/pocketbase superuser create EMAIL PASS
 ```
 
 Default routes after `serve`:
@@ -49,21 +98,19 @@ Collections are SQLite tables defined by name and fields. Three types:
 
 #### Available field types
 
-| Type | Description | Default |
-|------|-------------|---------|
-| `BoolField` | `true`/`false` | `false` |
-| `NumberField` | numeric/float64 | `0` |
-| `TextField` | string | `""` |
-| `EmailField` | email string | `""` |
-| `URLField` | URL string | `""` |
-| `EditorField` | HTML text | `""` |
-| `DateField` | RFC3339 datetime (`Y-m-d H:i:s.uZ`) | `""` |
-| `AutodateField` | auto-set on create/update | — |
-| `SelectField` | single/multiple from predefined list | `""` or `[]` |
-| `FileField` | file reference (stored on disk or S3) | `""` or `[]` |
-| `RelationField` | reference to another collection record | `""` or `[]` |
-| `JSONField` | any serialized JSON (nullable) | `null` |
-| `GeoPoint` | `{lon, lat}` coordinates | `{lon:0, lat:0}` |
+- `BoolField` — `true`/`false` (default: `false`)
+- `NumberField` — numeric/float64 (default: `0`)
+- `TextField` — string (default: `""`)
+- `EmailField` — email string (default: `""`)
+- `URLField` — URL string (default: `""`)
+- `EditorField` — HTML text (default: `""`)
+- `DateField` — RFC3339 datetime `Y-m-d H:i:s.uZ` (default: `""`)
+- `AutodateField` — auto-set on create/update
+- `SelectField` — single/multiple from predefined list (default: `""` or `[]`)
+- `FileField` — file reference, stored on disk or S3 (default: `""` or `[]`)
+- `RelationField` — reference to another collection record (default: `""` or `[]`)
+- `JSONField` — any serialized JSON, nullable (default: `null`)
+- `GeoPoint` — `{lon, lat}` coordinates (default: `{lon:0, lat:0}`)
 
 #### Field set modifiers (for create/update)
 
@@ -260,15 +307,13 @@ Role pattern:
 
 Common parameters for list/search endpoints:
 
-| Param | Type | Description |
-|-------|------|-------------|
-| `page` | Number | Page number (default 1) |
-| `perPage` | Number | Records per page (default 30) |
-| `sort` | String | `+field` (ASC) or `-field` (DESC) |
-| `filter` | String | Filter expression |
-| `expand` | String | Relation expansion (up to 6 levels) |
-| `fields` | String | Comma-separated fields to return |
-| `skipTotal` | Boolean | Skip total count query (faster) |
+- `page` (Number) — page number (default 1)
+- `perPage` (Number) — records per page (default 30)
+- `sort` (String) — `+field` (ASC) or `-field` (DESC)
+- `filter` (String) — filter expression
+- `expand` (String) — relation expansion (up to 6 levels)
+- `fields` (String) — comma-separated fields to return
+- `skipTotal` (Boolean) — skip total count query (faster)
 
 ### 8. Superuser client (server-side)
 
@@ -378,15 +423,13 @@ Mount volume at `/pb/pb_data` for persistence.
 
 #### Production recommendations
 
-| Setting | Description |
-|---------|-------------|
-| **SMTP mail** | Configure in Dashboard > Settings > Mail. Default `sendmail` is unreliable. |
-| **Rate limiter** | Enable in Dashboard > Settings > Application. Prevents API abuse. |
-| **Superuser IP whitelist** | Restrict superuser access to specific IPs (v0.38.0+). |
-| **MFA for superusers** | Enable OTP for `_superusers` collection. |
-| **`GOMEMLIMIT`** | Set env var (e.g. `GOMEMLIMIT=512MiB`) to prevent OOM in constrained environments. |
-| **Settings encryption** | Use `--encryptionEnv=PB_ENCRYPTION_KEY` with a 32-char key to encrypt stored settings. |
-| **Open file descriptors** | `ulimit -n 4096` or set `LimitNOFILE` in systemd for many realtime connections. |
+- **SMTP mail** — configure in Dashboard > Settings > Mail. Default `sendmail` is unreliable.
+- **Rate limiter** — enable in Dashboard > Settings > Application. Prevents API abuse.
+- **Superuser IP whitelist** — restrict superuser access to specific IPs (v0.38.0+).
+- **MFA for superusers** — enable OTP for `_superusers` collection.
+- **`GOMEMLIMIT`** — set env var (e.g. `GOMEMLIMIT=512MiB`) to prevent OOM in constrained environments.
+- **Settings encryption** — use `--encryptionEnv=PB_ENCRYPTION_KEY` with a 32-char key to encrypt stored settings.
+- **Open file descriptors** — `ulimit -n 4096` or set `LimitNOFILE` in systemd for many realtime connections.
 
 ## Guardrails
 
