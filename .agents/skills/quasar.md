@@ -1,7 +1,7 @@
 ---
 shortDescription: "Vue.js 3 SPA framework with Material Design components, Quasar CLI, and Vite plugin"
-version: "1.1.0"
-lastUpdated: "2026-06-27"
+version: "1.3.0"
+lastUpdated: "2026-06-28"
 ---
 
 ## Purpose
@@ -12,7 +12,26 @@ Quasar is a Vue.js 3 framework for building SPAs, SSR apps, PWAs, mobile apps (C
 
 ### 1. Project setup
 
-Prerequisites: Node.js >=22 LTS, PNPM v11+ (or Yarn/NPM/Bun).
+**Pre-flight 1/2: reject PowerShell.** Quasar CLI requires bash or zsh:
+
+```bash
+[ -z "$PSVersionTable" ] || { echo "ERROR: PowerShell detected. Open bash/zsh or install WSL: wsl --install"; exit 1; }
+```
+
+**Pre-flight 2/2: ensure node (>=22) and pnpm (>=11) exist.** Install if missing:
+
+```bash
+command -v node &>/dev/null || { echo "ERROR: Node.js not found. Install Node.js >=22 LTS first."; exit 1; }
+command -v pnpm &>/dev/null || npm install -g pnpm
+
+nodeVersion=$(node -v | sed 's/v//' | cut -d. -f1)
+[ "$nodeVersion" -ge 22 ] || { echo "ERROR: Node.js >=22 required, found v$nodeVersion."; exit 1; }
+
+pnpmVersion=$(pnpm -v | cut -d. -f1)
+[ "$pnpmVersion" -ge 11 ] || { echo "ERROR: PNPM >=11 required, found v$pnpmVersion."; exit 1; }
+```
+
+Create project:
 
 ```bash
 # Create project (interactive prompts)
@@ -50,6 +69,14 @@ When prompted, select:
 ```
 
 ### 3. Development commands
+
+**Pre-flight: ensure quasar CLI is available:**
+
+```bash
+command -v quasar &>/dev/null || { echo "ERROR: Quasar CLI not found. Run: pnpm add -g @quasar/cli"; exit 1; }
+```
+
+Run commands:
 
 ```bash
 # Dev server
@@ -132,7 +159,7 @@ router.push({ name: 'user', params: { id: 42 } });
 import { ref } from 'vue';
 
 const leftDrawerOpen = ref(false);
-const toggleDrawer = () => { leftDrawerOpen.value = !leftDrawerOpen.value; };
+const toggleDrawer = () => leftDrawerOpen.value = !leftDrawerOpen.value;
 </script>
 ```
 
@@ -217,10 +244,13 @@ const rows = ref([]);
 const loading = ref(false);
 const pagination = ref({ page: 1, rowsPerPage: 10, rowsNumber: 0 });
 
-const onRequest = async (props) => {
+const onRequest = async (requestProps) => {
   loading.value = true;
-  // Fetch data with props.pagination
-  loading.value = false;
+  try {
+    // Fetch data with requestProps.pagination
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 ```
@@ -270,7 +300,8 @@ export const useCounterStore = defineStore('counter', {
     increment() { this.count++; },
     async fetchCount() {
       // API call
-      this.count = await fetch('/api/count').then(r => r.json());
+      const response = await fetch('/api/count');
+      this.count = await response.json();
     },
   },
 });
@@ -310,7 +341,7 @@ Boot files can also be async:
 import { defineBoot } from '#q-app'
 
 export default defineBoot(async ({ app, router, store }) => {
-  await something()
+  await fetchUserPreferences()
 })
 ```
 
@@ -456,9 +487,11 @@ $q.dark.set(true); // or 'auto'
 </script>
 ```
 
-### 11. Vite plugin (alternative to Quasar CLI)
+### 13. Vite plugin (alternative to Quasar CLI)
 
-For existing Vite projects:
+For existing Vite projects. **Pre-flight: ensure node and pnpm exist** (see section 1).
+
+Install:
 
 ```bash
 pnpm add quasar @quasar/extras
