@@ -2,9 +2,6 @@
 shortDescription: "Single-file Go backend with embedded SQLite, realtime subscriptions, auth, and REST API"
 version: "1.1.0"
 lastUpdated: "2026-06-27"
-allowed-tools:
-  - Bash(pocketbase *)
-  - Bash(go *)
 ---
 
 ## Purpose

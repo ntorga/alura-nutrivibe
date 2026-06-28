@@ -2,9 +2,6 @@
 shortDescription: "Web search, scraping, URL discovery, and bulk extraction with Firecrawl CLI"
 version: "1.0.0"
 lastUpdated: "2026-06-27"
-allowed-tools:
-  - Bash(firecrawl *)
-  - Bash(npx firecrawl *)
 ---
 
 ## Purpose

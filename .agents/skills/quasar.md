@@ -2,11 +2,6 @@
 shortDescription: "Vue.js 3 SPA framework with Material Design components, Quasar CLI, and Vite plugin"
 version: "1.1.0"
 lastUpdated: "2026-06-27"
-allowed-tools:
-  - Bash(quasar *)
-  - Bash(npx quasar *)
-  - Bash(pnpm *)
-  - Bash(npm *)
 ---
 
 ## Purpose
