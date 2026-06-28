@@ -12,3 +12,4 @@ The `.agents/` directory contains development skills for this project:
 
 - Use lists instead of markdown tables for token efficiency
 - Use camelCase with explicit, descriptive names for all variables in code and documentation (e.g., `superuserToken`, `foodRecords`, `apiResponse` — not `t`, `fs`, `r`)
+- Use conventional commits (`feat:`, `fix:`, `docs:`, etc.) and split changes into logical commits where possible, but avoid rebasing or amending existing commits
