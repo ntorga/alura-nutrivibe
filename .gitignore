@@ -1,5 +1,6 @@
 .firecrawl
 node_modules
 package-lock.json
-pb_data/
-pocketbase/
+pocketbase/pb_data/
+pocketbase/pb_public/
+pocketbase/pocketbase
