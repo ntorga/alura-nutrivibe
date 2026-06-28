@@ -39,10 +39,11 @@ The workshop runs 12 hours and covers the full environment setup before building
 
 1. **WSL install** (Windows students) — Linux subsystem for running the dev toolchain
 2. **Node.js via [mise](https://mise.jdx.dev/)** — polyglot version manager for Node.js and other runtimes
-3. **OpenCode install via npm** — `npm install -g opencode-ai`
-4. **OpenCode Go setup** — subscribe at [opencode.ai/go](https://opencode.ai/docs/go/) and configure the API key
-5. **Collaborative planning** — user and agent discuss the full project plan via conversation
-6. **Agent-driven build** — OpenCode builds the project step by step from the agreed plan
+3. **[Zed](https://zed.dev/) install** — high-performance code editor
+4. **OpenCode install via npm** — `npm install -g opencode-ai`, runs inside Zed's built-in terminal
+5. **OpenCode Go setup** — subscribe at [opencode.ai/go](https://opencode.ai/docs/go/) and configure the API key
+6. **Collaborative planning** — user and agent discuss the full project plan via conversation
+7. **Agent-driven build** — OpenCode builds the project step by step from the agreed plan
 
 ### PocketBase Superuser
 
