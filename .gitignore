@@ -1,3 +1,5 @@
 .firecrawl
 node_modules
 package-lock.json
+pb_data/
+pocketbase/
