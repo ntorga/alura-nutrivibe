@@ -42,6 +42,7 @@ The workshop runs 12 hours and covers the full environment setup before building
 ## Documentation
 
 - [Food Nutrition Database](docs/food-nutrition-db.md) — offline Brazilian food data and query examples
+- [Meal Parser Strategy](docs/meal-parser-strategy.md) — architecture and implementation plan for text/image-to-structured-form parsing (design phase, to be implemented as the final step after the rest of the project is complete)
 
 ## Agents
 
