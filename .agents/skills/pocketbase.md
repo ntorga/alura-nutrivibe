@@ -1,6 +1,6 @@
 ---
 shortDescription: "Single-file Go backend with embedded SQLite, realtime subscriptions, auth, and REST API"
-version: "1.2.0"
+version: "1.4.0"
 lastUpdated: "2026-06-28"
 ---
 
@@ -72,10 +72,16 @@ Available OS/arch combinations from GitHub releases:
 
 #### First run
 
+**Pre-flight: verify pocketbase binary exists:**
+
+```bash
+[ -x ./pocketbase/pocketbase ] || { echo "ERROR: PocketBase binary not found. Run the download step first."; exit 1; }
+```
+
 First run generates an installer link for the superuser account. Create manually if needed:
 
 ```bash
-./pocketbase/pocketbase superuser create EMAIL PASS
+./pocketbase/pocketbase superuser create adminEmail adminPassword
 ```
 
 Default routes after `serve`:
@@ -121,6 +127,13 @@ Collections are SQLite tables defined by name and fields. Three types:
 
 ### 3. JavaScript SDK (client-side)
 
+**Pre-flight: ensure node and npm exist.** Install if missing:
+
+```bash
+command -v node &>/dev/null || installPackage nodejs
+command -v npm  &>/dev/null || installPackage npm
+```
+
 Install and initialize:
 
 ```bash
@@ -130,110 +143,110 @@ npm install pocketbase
 ```javascript
 import PocketBase from 'pocketbase';
 
-const pb = new PocketBase('http://127.0.0.1:8090');
+const pocketbaseClient = new PocketBase('http://127.0.0.1:8090');
 
 // Optional: disable auto-cancellation for concurrent requests
-pb.autoCancellation(false);
+pocketbaseClient.autoCancellation(false);
 ```
 
 #### CRUD operations
 
 ```javascript
 // List (paginated)
-const resultList = await pb.collection('posts').getList(1, 50, {
-    filter: 'created >= "2022-01-01 00:00:00" && someField1 != someField2',
+const paginatedPosts = await pocketbaseClient.collection('posts').getList(1, 50, {
+    filter: 'created >= "2022-01-01 00:00:00" && status != archived',
     sort: '-created',
-    expand: 'relField1,relField2.subRelField',
+    expand: 'author,comments.user',
 });
 
 // Full list (no pagination)
-const records = await pb.collection('posts').getFullList({
+const allPosts = await pocketbaseClient.collection('posts').getFullList({
     sort: '-created',
 });
 
 // Get first matching
-const record = await pb.collection('posts').getFirstListItem('someField="test"');
+const firstPost = await pocketbaseClient.collection('posts').getFirstListItem('status="published"');
 
 // Get one by ID
-const one = await pb.collection('posts').getOne('RECORD_ID', {
-    expand: 'relField1',
+const postById = await pocketbaseClient.collection('posts').getOne('recordId', {
+    expand: 'author',
 });
 
 // Create
-const newRecord = await pb.collection('demo').create({
+const createdPost = await pocketbaseClient.collection('posts').create({
     title: 'Lorem ipsum',
 });
 
 // Update
-const updated = await pb.collection('demo').update('RECORD_ID', {
+const updatedPost = await pocketbaseClient.collection('posts').update('recordId', {
     title: 'Updated',
 });
 
 // Delete
-await pb.collection('demo').delete('RECORD_ID');
+await pocketbaseClient.collection('posts').delete('recordId');
 ```
 
 #### Batch operations (enable in Dashboard > Settings > Application)
 
 ```javascript
-const batch = pb.createBatch();
+const batchRequest = pocketbaseClient.createBatch();
 
-batch.collection('example1').create({ ... });
-batch.collection('example2').update('RECORD_ID', { ... });
-batch.collection('example3').delete('RECORD_ID');
-batch.collection('example4').upsert({ ... });
+batchRequest.collection('posts').create({ ... });
+batchRequest.collection('posts').update('recordId', { ... });
+batchRequest.collection('posts').delete('recordId');
+batchRequest.collection('comments').upsert({ ... });
 
-const result = await batch.send();
+const batchResult = await batchRequest.send();
 ```
 
 #### File uploads (multipart/form-data)
 
 ```javascript
-const data = new FormData();
-data.append('title', 'My Post');
-data.append('document', new File([...], 'file.txt'));
+const formData = new FormData();
+formData.append('title', 'My Post');
+formData.append('document', new File([...], 'file.txt'));
 
-const record = await pb.collection('demo').create(data);
+const uploadedRecord = await pocketbaseClient.collection('posts').create(formData);
 ```
 
 ### 4. Authentication
 
 ```javascript
 // Password auth
-const authData = await pb.collection('users').authWithPassword('email', 'password');
+const authResult = await pocketbaseClient.collection('users').authWithPassword('email', 'password');
 
 // Auth state
-console.log(pb.authStore.isValid);
-console.log(pb.authStore.token);
-console.log(pb.authStore.record.id);
+console.log(pocketbaseClient.authStore.isValid);
+console.log(pocketbaseClient.authStore.token);
+console.log(pocketbaseClient.authStore.record.id);
 
 // Refresh token
-await pb.collection('users').authRefresh();
+await pocketbaseClient.collection('users').authRefresh();
 
 // Logout
-pb.authStore.clear();
+pocketbaseClient.authStore.clear();
 
 // OTP auth
-const otpReq = await pb.collection('users').requestOTP('email');
-const otpAuth = await pb.collection('users').authWithOTP(otpReq.otpId, 'OTP_CODE');
+const otpRequest = await pocketbaseClient.collection('users').requestOTP('email');
+const otpAuthResult = await pocketbaseClient.collection('users').authWithOTP(otpRequest.otpId, 'OTP_CODE');
 
 // OAuth2
-const oauth = await pb.collection('users').authWithOAuth2Code(
+const oauthAuthResult = await pocketbaseClient.collection('users').authWithOAuth2Code(
     'google', 'CODE', 'VERIFIER', 'REDIRECT_URL',
     { name: 'test' } // optional create data
 );
 
 // Password reset
-await pb.collection('users').requestPasswordReset('email');
-await pb.collection('users').confirmPasswordReset('TOKEN', 'NEW_PASS', 'NEW_PASS');
+await pocketbaseClient.collection('users').requestPasswordReset('email');
+await pocketbaseClient.collection('users').confirmPasswordReset('TOKEN', 'NEW_PASS', 'NEW_PASS');
 
 // Email verification
-await pb.collection('users').requestVerification('email');
-await pb.collection('users').confirmVerification('TOKEN');
+await pocketbaseClient.collection('users').requestVerification('email');
+await pocketbaseClient.collection('users').confirmVerification('TOKEN');
 
 // Email change
-await pb.collection('users').requestEmailChange('new@email.com');
-await pb.collection('users').confirmEmailChange('TOKEN', 'PASSWORD');
+await pocketbaseClient.collection('users').requestEmailChange('new@email.com');
+await pocketbaseClient.collection('users').confirmEmailChange('TOKEN', 'PASSWORD');
 ```
 
 ### 5. Realtime subscriptions
@@ -247,18 +260,18 @@ Realtime uses Server-Sent Events (SSE). Events fire on `create`, `update`, `dele
 
 ```javascript
 // Subscribe to all records in a collection
-pb.collection('posts').subscribe('*', (e) => {
-    console.log(e.action); // create|update|delete
-    console.log(e.record);
+pocketbaseClient.collection('posts').subscribe('*', (realtimeEvent) => {
+    console.log(realtimeEvent.action); // create|update|delete
+    console.log(realtimeEvent.record);
 }, { /* filter, expand, fields, headers */ });
 
 // Subscribe to a single record
-pb.collection('posts').subscribe('RECORD_ID', (e) => { ... });
+pocketbaseClient.collection('posts').subscribe('recordId', (realtimeEvent) => { ... });
 
 // Unsubscribe
-pb.collection('posts').unsubscribe('RECORD_ID'); // specific record
-pb.collection('posts').unsubscribe('*');          // all '*' subscriptions
-pb.collection('posts').unsubscribe();             // all in collection
+pocketbaseClient.collection('posts').unsubscribe('recordId'); // specific record
+pocketbaseClient.collection('posts').unsubscribe('*');          // all '*' subscriptions
+pocketbaseClient.collection('posts').unsubscribe();             // all in collection
 ```
 
 ### 6. API rules and filters
@@ -267,24 +280,30 @@ Access control is defined per collection via API rules (`listRule`, `viewRule`, 
 
 Filter syntax:
 
+**Comparison:**
 ```
-// Comparison
 field = "value"
 field != "value"
 field > 100
 field >= 100
 field < 100
 field <= 100
+```
 
-// String matching
-field ~ "pattern"       // LIKE (auto-wraps in %)
-field !~ "pattern"      // NOT LIKE
+**String matching:**
+```
+field ~ "pattern"
+field !~ "pattern"
+```
 
-// Any/At-least-one-of (for arrays/multi-relations)
+**Any/At-least-one-of (for arrays/multi-relations):**
+```
 field ?= "value"
 field ?~ "pattern"
+```
 
-// Logical grouping
+**Logical grouping:**
+```
 (expr1 && expr2) || expr3
 ```
 
@@ -326,7 +345,7 @@ const superuserClient = new PocketBase('https://example.com');
 superuserClient.autoCancellation(false);
 
 // Option 1: auth with credentials
-await superuserClient.collection('_superusers').authWithPassword(EMAIL, PASS, {
+await superuserClient.collection('_superusers').authWithPassword(superuserEmail, superuserPassword, {
     autoRefreshThreshold: 30 * 60
 });
 
@@ -335,101 +354,6 @@ superuserClient.authStore.save('YOUR_GENERATED_SUPERUSER_TOKEN');
 
 export default superuserClient;
 ```
-
-### 9. Production deployment
-
-#### Standalone binary (minimal)
-
-```bash
-# Upload binary + pb_migrations + pb_hooks to server
-rsync -avz -e ssh /local/path/to/myapp root@SERVER_IP:/root/pb
-
-# Start with auto TLS (Let's Encrypt)
-/root/pb/pocketbase serve yourdomain.com
-```
-
-#### Systemd service (`/lib/systemd/system/pocketbase.service`)
-
-```ini
-[Unit]
-Description = pocketbase
-
-[Service]
-Type             = simple
-User             = root
-Group            = root
-LimitNOFILE      = 4096
-Restart          = always
-RestartSec       = 5s
-StandardOutput   = append:/root/pb/std.log
-StandardError    = append:/root/pb/std.log
-WorkingDirectory = /root/pb
-ExecStart        = /root/pb/pocketbase serve yourdomain.com
-
-[Install]
-WantedBy = multi-user.target
-```
-
-```bash
-systemctl enable pocketbase.service
-systemctl start pocketbase
-```
-
-#### Reverse proxy (NGINX)
-
-```nginx
-server {
-    listen 80;
-    server_name example.com;
-    client_max_body_size 10M;
-
-    location / {
-        proxy_set_header Connection '';
-        proxy_http_version 1.1;
-        proxy_read_timeout 360s;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://127.0.0.1:8090;
-    }
-}
-```
-
-Set "User IP proxy headers" in Dashboard settings (`X-Real-IP`, `X-Forwarded-For`) so PocketBase logs the actual client IP.
-
-#### Docker
-
-```dockerfile
-FROM alpine:latest
-ARG PB_VERSION=0.39.4
-RUN apk add --no-cache unzip ca-certificates
-ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
-RUN unzip /tmp/pb.zip -d /pb/
-# COPY ./pb_migrations /pb/pb_migrations
-# COPY ./pb_hooks /pb/pb_hooks
-EXPOSE 8080
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
-```
-
-Mount volume at `/pb/pb_data` for persistence.
-
-#### Backup and restore
-
-- Manual: copy/replace `pb_data` directory (stop app first for transactional safety).
-- Built-in API: Dashboard > Settings > Backups (local or S3). Generates ZIP snapshot of `pb_data`.
-- During backup generation, app is temporarily read-only.
-- For large `pb_data` (2GB+), use `sqlite3 .backup` + `rsync` instead.
-
-#### Production recommendations
-
-- **SMTP mail** — configure in Dashboard > Settings > Mail. Default `sendmail` is unreliable.
-- **Rate limiter** — enable in Dashboard > Settings > Application. Prevents API abuse.
-- **Superuser IP whitelist** — restrict superuser access to specific IPs (v0.38.0+).
-- **MFA for superusers** — enable OTP for `_superusers` collection.
-- **`GOMEMLIMIT`** — set env var (e.g. `GOMEMLIMIT=512MiB`) to prevent OOM in constrained environments.
-- **Settings encryption** — use `--encryptionEnv=PB_ENCRYPTION_KEY` with a 32-char key to encrypt stored settings.
-- **Open file descriptors** — `ulimit -n 4096` or set `LimitNOFILE` in systemd for many realtime connections.
 
 ## Guardrails
 
@@ -443,4 +367,3 @@ Mount volume at `/pb/pb_data` for persistence.
 - **Realtime needs EventSource.** For React Native, install `react-native-sse` polyfill.
 - **OAuth2 needs PKCE.** Use `authWithOAuth2Code` with code verifier/challenge.
 - **Filter by `@collection.*` requires superuser.** Regular users cannot filter across collections.
-- **`--scrape` on search costs 5 extra credits.** Prefer plain scrape to file, then search markdown yourself.
