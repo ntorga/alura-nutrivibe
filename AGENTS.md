@@ -1,5 +1,7 @@
 # Agents
 
+Before doing any work, read the project's [README.md](README.md) to understand the goals, tech stack, and features.
+
 The `.agents/` directory contains development skills for this project:
 
 - **`.agents/skills/pocketbase.md`** — PocketBase backend development, schema design, migrations
@@ -9,3 +11,4 @@ The `.agents/` directory contains development skills for this project:
 ## Rules
 
 - Use lists instead of markdown tables for token efficiency
+- Use camelCase with explicit, descriptive names for all variables in code and documentation (e.g., `superuserToken`, `foodRecords`, `apiResponse` — not `t`, `fs`, `r`)

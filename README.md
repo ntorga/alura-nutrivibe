@@ -20,6 +20,11 @@ A nutrition tracker SPA built with [PocketBase](https://pocketbase.io/) and [Qua
 
 > Instructions coming soon as development progresses.
 
+### PocketBase Superuser
+
+- **Email:** `admin@nutrivibe.local`
+- **Password:** `NutriVibe2026!`
+
 ## Documentation
 
 - [Food Nutrition Database](docs/food-nutrition-db.md) — offline Brazilian food data and query examples
