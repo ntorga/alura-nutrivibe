@@ -1,6 +1,6 @@
 ---
 shortDescription: "Single-file Go backend with embedded SQLite, realtime subscriptions, auth, and REST API"
-version: "1.4.0"
+version: "1.5.0"
 lastUpdated: "2026-06-28"
 ---
 
@@ -10,17 +10,25 @@ PocketBase is an open-source backend in a single Go binary. It provides an embed
 
 ## Procedure
 
-### 1. Setup and installation
-
-#### Download the binary (agent-driven)
-
-**Pre-flight 1/2: reject PowerShell.** PocketBase install requires bash or zsh:
+**Pre-flight 1/3: reject PowerShell.** All steps require bash or zsh:
 
 ```bash
 [ -z "$PSVersionTable" ] || { echo "ERROR: PowerShell detected. Open bash/zsh or install WSL: wsl --install"; exit 1; }
 ```
 
-**Pre-flight 2/2: ensure curl and unzip exist.** Install if missing:
+**Pre-flight 2/3: check if PocketBase is already running** — if so, skip setup entirely:
+
+```bash
+pgrep -f "pocketbase serve" &>/dev/null && echo "PocketBase is already running — skip setup"
+```
+
+**Pre-flight 3/3: if not running, continue to setup below.**
+
+### 1. Setup and installation
+
+#### Download the binary (agent-driven)
+
+**Pre-flight: ensure curl and unzip exist.** Install if missing:
 
 ```bash
 osName=$(uname -s | tr '[:upper:]' '[:lower:]')
@@ -72,7 +80,7 @@ Available OS/arch combinations from GitHub releases:
 
 #### First run
 
-**Pre-flight: verify pocketbase binary exists:**
+**Verify binary exists:**
 
 ```bash
 [ -x ./pocketbase/pocketbase ] || { echo "ERROR: PocketBase binary not found. Run the download step first."; exit 1; }
