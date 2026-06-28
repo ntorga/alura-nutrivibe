@@ -1,7 +1,7 @@
 ---
 shortDescription: "Web search, scraping, URL discovery, and bulk extraction with Firecrawl CLI"
-version: "1.0.0"
-lastUpdated: "2026-06-27"
+version: "1.2.0"
+lastUpdated: "2026-06-28"
 ---
 
 ## Purpose
@@ -10,11 +10,26 @@ Provides web search, page scraping, site URL discovery, and bulk content extract
 
 ## Procedure
 
-### 1. Try WebFetch first (free)
+### 1. Pre-flight checks
+
+**Reject PowerShell.** Firecrawl CLI requires bash or zsh:
+
+```bash
+[ -z "$PSVersionTable" ] || { echo "ERROR: PowerShell detected. Open bash/zsh or install WSL: wsl --install"; exit 1; }
+```
+
+**Ensure firecrawl CLI and jq exist.** Install if missing:
+
+```bash
+command -v firecrawl &>/dev/null || { echo "ERROR: firecrawl CLI not found. Install via: npm install -g @mendable/firecrawl-cli"; exit 1; }
+command -v jq        &>/dev/null || { echo "ERROR: jq not found. Install via: apt-get install jq / brew install jq"; exit 1; }
+```
+
+### 2. Try WebFetch first (free)
 
 Before using firecrawl, attempt to fetch the URL with the native WebFetch tool. It works for most static sites and costs nothing. Only escalate to firecrawl if WebFetch returns empty/incomplete content or the page is a JS-rendered SPA.
 
-### 2. Choose the right operation
+### 3. Choose the right operation
 
 Escalate through these in order based on what you need:
 
@@ -23,7 +38,7 @@ Escalate through these in order based on what you need:
 3. **map** (1 credit) — discover all URLs on a site
 4. **crawl** (1 credit/page) — bulk extract from many pages
 
-### 3. search — find pages without a URL
+### 4. search — find pages without a URL
 
 Build a precise query to avoid multiple searches:
 
@@ -35,9 +50,9 @@ Build a precise query to avoid multiple searches:
 - Time filter: `--tbs qdr:d` (day), `qdr:w` (week), `qdr:m` (month), `qdr:y` (year)
 
 ```bash
-firecrawl search "your query" --limit 10 -o .firecrawl/result.json --json
-firecrawl search "your query" --scrape --limit 5 -o .firecrawl/scraped.json --json
-firecrawl search "your query" --sources news --tbs qdr:d -o .firecrawl/news.json --json
+firecrawl search "your query" --limit 10 -o .firecrawl/search.json --json
+firecrawl search "your query" --scrape --limit 5 -o .firecrawl/search-scraped.json --json
+firecrawl search "your query" --sources news --tbs qdr:d -o .firecrawl/search-news.json --json
 ```
 
 Options: `--limit <n>` (default 10, max 100), `--sources <web,images,news>`, `--categories <github,research,pdf>`, `--tbs <qdr:h|d|w|m|y>`, `--scrape`, `--json`, `-o <path>`
@@ -45,13 +60,13 @@ Options: `--limit <n>` (default 10, max 100), `--sources <web,images,news>`, `--
 After processing results, send feedback to refund 1 credit (within ~2 min, `--silent &` to background):
 
 ```bash
-SEARCH_ID=$(jq -r '.id' .firecrawl/search.json)
-firecrawl search-feedback "$SEARCH_ID" --rating good \
+searchId=$(jq -r '.id' .firecrawl/search.json)
+firecrawl search-feedback "$searchId" --rating good \
   --valuable-sources '[{"url":"https://example.com","reason":"Most authoritative"}]' \
   --silent &
 ```
 
-### 4. scrape — extract content from a URL
+### 5. scrape — extract content from a URL
 
 Try WebFetch first (free). Only use firecrawl scrape if WebFetch fails (JS-rendered SPA, blocked, or incomplete content).
 
@@ -63,7 +78,7 @@ firecrawl scrape "<url>" --wait-for 3000 -o .firecrawl/page.md
 
 Options: `-f,--format <formats>` (markdown, html, rawHtml, links, screenshot, json), `-Q,--query <prompt>` (+5 credits), `--only-main-content`, `--wait-for <ms>`, `--include-tags`, `--exclude-tags`, `-o <path>`
 
-### 5. map — discover URLs on a site
+### 6. map — discover URLs on a site
 
 ```bash
 firecrawl map "<url>" --search "authentication" -o .firecrawl/filtered.txt
@@ -72,7 +87,7 @@ firecrawl map "<url>" --limit 500 --json -o .firecrawl/urls.json
 
 Options: `--limit <n>`, `--search <query>`, `--sitemap <include|skip|only>`, `--include-subdomains`, `--json`, `-o <path>`
 
-### 6. crawl — bulk extract from many pages
+### 7. crawl — bulk extract from many pages
 
 ```bash
 firecrawl crawl "<url>" --include-paths /docs --limit 50 --wait -o .firecrawl/crawl.json
@@ -81,7 +96,7 @@ firecrawl crawl "<url>" --max-depth 3 --wait --progress -o .firecrawl/crawl.json
 
 Options: `--wait`, `--progress`, `--limit <n>`, `--max-depth <n>`, `--include-paths`, `--exclude-paths`, `--delay <ms>`, `--max-concurrency <n>`, `-o <path>`
 
-### 7. Output handling
+### 8. Output handling
 
 Always write output to `.firecrawl/` with `-o` to avoid context window bloat. Use `jq` to extract fields:
 
@@ -90,7 +105,7 @@ jq -r '.data.web[].url' .firecrawl/search.json
 jq -r '.data.links[].url' .firecrawl/urls.json
 ```
 
-Naming convention: `.firecrawl/search-{query}.json`, `.firecrawl/{site}-{path}.md`
+Naming convention: `.firecrawl/search.json`, `.firecrawl/search-scraped.json`, `.firecrawl/urls.json`, `.firecrawl/{site}-{path}.md`
 
 ## Guardrails
 
