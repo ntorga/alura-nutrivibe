@@ -10,13 +10,14 @@ This project was built for an **Alura workshop** where students learn to set up 
 - Photo-based meal registration — snap a photo of your meal and [Mimo V2.5](https://platform.mimo.ai/) transforms it into structured form entries
 - Log meals throughout the day with detailed food entries
 - Automatic nutrition calculation (calories, macros, vitamins, minerals)
-- Weekly and monthly graphs for tracking progress over time
+- Weekly and monthly graphs for tracking progress over time (powered by [ApexCharts](https://apexcharts.com/))
 
 Both AI features are powered by [OpenCode Go](https://opencode.ai/docs/go/), an AI subscription service that provides access to multiple models.
 
 ## Tech Stack
 
 - **Frontend:** Quasar (Vue.js)
+- **Charts:** ApexCharts.js
 - **Backend:** PocketBase
 - **Database:** PocketBase (SQLite)
 - **Food Data:** [TACO](https://www.nepa.unicamp.br/taco/tabela.php) — 597 Brazilian foods
