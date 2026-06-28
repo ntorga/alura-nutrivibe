@@ -23,6 +23,16 @@ Both AI features are powered by [OpenCode Go](https://opencode.ai/docs/go/), an 
 - **Food Data:** [TACO](https://www.nepa.unicamp.br/taco/tabela.php) — 597 Brazilian foods
 - **AI:** OpenCode Go (DeepSeek V4 Flash for text, Mimo V2.5 for image recognition)
 
+## Project Structure
+
+- `src/` — Quasar source code (Vue.js SPA)
+- `pb_public/` — built frontend assets (output of `quasar build`, served by PocketBase at `http://127.0.0.1:8090`)
+- `pocketbase/` — PocketBase binary, data, migrations, and hooks (gitignored, created during setup)
+- `assets/` — static data files (TACO food database)
+- `docs/` — project documentation
+
+Build workflow: `quasar build` → copy `dist/` to `pb_public/` → PocketBase serves the SPA and API from a single binary.
+
 ## Workshop Setup
 
 The workshop runs 12 hours and covers the full environment setup before building:

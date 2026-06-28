@@ -27,7 +27,7 @@ The key design decision: the AI receives the full list of 597 TACO foods (with `
 The PocketBase hook fetches the food catalog from the `foods` collection. We select only `taco_id` and `description` (not `category` or the 29 nutritional fields) to keep the prompt payload small.
 
 ```javascript
-// pb_hooks/meal-parser.pb.js
+// pocketbase/pb_hooks/meal-parser.pb.js
 
 function getFoodCatalog() {
   let foodRecords = $app.findRecordsByFilter("foods", "1=1", "taco_id", 600, 0)
@@ -184,7 +184,7 @@ The response includes `description` alongside `tacoId` so the frontend can displ
 A single `POST /api/meals/parse` endpoint accepts either `text` or `image` in the payload and routes to the appropriate model:
 
 ```javascript
-// pb_hooks/meal-parser.pb.js
+// pocketbase/pb_hooks/meal-parser.pb.js
 
 function resolveTextRequest(requestBody, systemPrompt) {
   let sanitizedText = sanitizeUserInput(requestBody.text)
