@@ -97,6 +97,8 @@ Default routes after `serve`:
 - `http://127.0.0.1:8090/_/` — superuser dashboard
 - `http://127.0.0.1:8090/api/` — REST-ish API
 
+The default `--publicDir` is **relative to the PocketBase binary**, not the working directory. If the binary is at `./pocketbase/pocketbase`, the default public dir is `./pocketbase/pb_public/`. To serve from a different location, pass `--publicDir=./pb_public` (relative to CWD) or an absolute path.
+
 Auto-generated directories:
 - `pb_data` — application data, uploaded files (add to `.gitignore`)
 - `pb_migrations` — JS migration files with collection changes (commit to repo)
@@ -140,6 +142,7 @@ superuserToken=$(curl -s -X POST 'http://127.0.0.1:8090/api/collections/_superus
   | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
 
 # Create collection (use "fields" key, NOT "schema")
+# Field options go at the TOP LEVEL of each field object, NOT nested in "options"
 curl -X POST 'http://127.0.0.1:8090/api/collections' \
   -H 'Content-Type: application/json' \
   -H "Authorization: $superuserToken" \
@@ -147,9 +150,9 @@ curl -X POST 'http://127.0.0.1:8090/api/collections' \
     "name": "posts",
     "type": "base",
     "fields": [
-      {"name": "title", "type": "text", "options": {"min": 1}},
+      {"name": "title", "type": "text", "min": 1},
       {"name": "views", "type": "number"},
-      {"name": "status", "type": "select", "options": {"values": ["draft","published"], "maxSelect": 1}}
+      {"name": "status", "type": "select", "values": ["draft","published"], "maxSelect": 1}
     ],
     "listRule": "",
     "viewRule": ""
@@ -159,8 +162,7 @@ curl -X POST 'http://127.0.0.1:8090/api/collections' \
 **Gotchas:**
 - Use `fields` key (not `schema`) when creating collections via REST API.
 - Auth token goes in the `Authorization` header, not as a query parameter.
-- Number fields need no `options` object (or pass `{}`).
-- Select fields may fail validation via REST API in some versions — fall back to `text` type if needed.
+- **Field options go at the top level**, not nested inside an `options` wrapper. For example, use `{"name": "title", "type": "text", "min": 1}` NOT `{"name": "title", "type": "text", "options": {"min": 1}}`. This applies to all field types including `text`, `select`, `relation`, `number`, etc. Wrapping options in an `options` key causes `validation_required` / `"Cannot be blank"` errors.
 
 #### Field set modifiers (for create/update)
 

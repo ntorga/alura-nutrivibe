@@ -38,7 +38,7 @@ All 15 categories: `Alimentos preparados`, `Bebidas (alcoólicas e não alcoóli
 
 1. **Auth as superuser** to get an API token:
    ```bash
-   superuserToken=$(curl -s -X POST 'http://127.0.0.1:8090/api/collections/_superusers/auth-with-password' \
+   export superuserToken=$(curl -s -X POST 'http://127.0.0.1:8090/api/collections/_superusers/auth-with-password' \
      -H 'Content-Type: application/json' \
      -d '{"identity":"admin@nutrivibe.local","password":"NutriVibe2026!"}' \
      | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
@@ -56,10 +56,10 @@ All 15 categories: `Alimentos preparados`, `Bebidas (alcoólicas e não alcoóli
        'retinol_mcg', 're_mcg', 'rae_mcg', 'thiamine_mg', 'riboflavin_mg', 'pyridoxine_mg',
        'niacin_mg', 'vitamin_c_mg', 'saturated_g', 'monounsaturated_g', 'polyunsaturated_g'
    ]
-   collectionFields = [
-       {'name': 'description', 'type': 'text', 'options': {'min': 1}},
-       {'name': 'category', 'type': 'text'},
-   ] + [{'name': fieldName, 'type': 'number'} for fieldName in nutritionalFieldNames]
+    collectionFields = [
+        {'name': 'description', 'type': 'text', 'min': 1},
+        {'name': 'category', 'type': 'text'},
+    ] + [{'name': fieldName, 'type': 'number'} for fieldName in nutritionalFieldNames]
 
    requestBody = json.dumps({
        'name': 'foods', 'type': 'base', 'fields': collectionFields,
@@ -122,7 +122,7 @@ All 15 categories: `Alimentos preparados`, `Bebidas (alcoólicas e não alcoóli
 
 ### Gotchas
 
-- **Select field creation** via REST API may fail with `values` validation error in some PocketBase versions — use `text` type for `category` as a workaround (filtering still works).
+- **Field options go at the top level**, not nested in an `options` wrapper. Use `{'name': 'description', 'type': 'text', 'min': 1}` NOT `{'name': 'description', 'type': 'text', 'options': {'min': 1}}`. Wrapping options in an `options` key either causes `validation_required` errors (for required fields like `collectionId` on relation fields) or silently drops the constraint (for optional fields like `min` on text fields).
 - **NULL values** from SQLite become `0` in PocketBase (NumberField is non-nullable with zero-default).
 - **Authorization header** (not query param) is required for superuser API calls: `Authorization: $superuserToken`.
 - **Collection creation** uses `fields` key (not `schema`) in the REST API body.
