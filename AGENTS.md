@@ -8,9 +8,11 @@ The `.agents/` directory contains development skills for this project:
 - **`.agents/skills/quasar.md`** — Quasar/Vue.js frontend development, components, routing
 - **`.agents/skills/firecrawl.md`** — Web search, scraping, and data extraction
 - **`.agents/skills/apexcharts.md`** — ApexCharts.js data visualization with Vue 3 / Quasar integration
+- **`.agents/skills/agent-browser.md`** — Browser inspection and interaction for verifying rendered web UI
 
 ## Rules
 
 - Use lists instead of markdown tables for token efficiency
 - Use camelCase with explicit, descriptive names for all variables in code and documentation (e.g., `superuserToken`, `foodRecords`, `apiResponse` — not `t`, `fs`, `r`)
 - Use conventional commits (`feat:`, `fix:`, `docs:`, etc.) and split changes into logical commits where possible, but avoid rebasing or amending existing commits
+- **Always use agent-browser to verify frontend changes.** After editing any UI code (components, layouts, pages, styles), load the agent-browser skill and follow its verification loop: inspect the rendered result in the browser, interact with the component, and capture annotated screenshots to confirm correctness. Never assume a component is correct from source code alone.
