@@ -4,6 +4,8 @@ Skills are collected intelligence on how to operate a specific tool — whether 
 
 ### Available Skills
 
+- `agent-browser.md` — browser inspection and interaction for verifying rendered web UI during development
+- `apexcharts.md` — ApexCharts.js data visualization with Vue 3 / Quasar integration
 - `firecrawl.md` — web search, scraping, URL discovery, and bulk extraction with Firecrawl
 - `pocketbase.md` — single-file Go backend with embedded SQLite, realtime, auth, and REST API
 - `quasar.md` — Vue.js 3 SPA framework with Material Design components and Quasar CLI
