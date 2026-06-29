@@ -1,0 +1,42 @@
+{
+  "name": "nutrivibe",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Nutrition tracker SPA built with Quasar and PocketBase",
+  "keywords": [
+    "quasar",
+    "quasar-app",
+    "quasar-app-vite",
+    "quasar-cli",
+    "vite",
+    "vue",
+    "vuejs"
+  ],
+  "author": "ntorga <northontorga@gmail.com>",
+  "type": "module",
+  "scripts": {
+    "lint": "oxfmt && oxlint --fix",
+    "lint:check": "oxfmt --check && oxlint",
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "postinstall": "quasar prepare --silent"
+  },
+  "dependencies": {
+    "@quasar/extras": "^2.0.0",
+    "pocketbase": "^0.27.0",
+    "quasar": "^2.20.0",
+    "vue": "^3.5.22",
+    "vue-router": "^5.0.6"
+  },
+  "devDependencies": {
+    "@quasar/app-vite": "^3.0.0-rc.3",
+    "autoprefixer": "^10.4.27",
+    "oxfmt": "^0.x",
+    "oxlint": "^1.x",
+    "postcss": "^8.5.8"
+  },
+  "engines": {
+    "node": ">= 26 || ^24 || ^22.12"
+  },
+  "productName": "NutriVibe"
+}
