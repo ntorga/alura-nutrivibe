@@ -182,6 +182,25 @@ const entries = await pocketbaseClient.collection('meal_entries').getFullList({
 
 Nutrition values are pre-calculated and stored on the entry (based on `food.energy_kcal * (quantity_g / 100)` at creation time) so they remain consistent even if the food database is updated later.
 
+## PocketBase JS SDK Browser Parse Error
+
+**Issue:** `pocketbase@0.27.0` triggers `SyntaxError: Unexpected token '('` in Chrome when loaded as an ES module through the Quasar dev server (Vite pre-bundling). The error appears in the console during boot but the app still renders and functions correctly in production builds.
+
+**Symptoms:**
+- Dev server console shows `[Quasar] boot error: SyntaxError: Unexpected token '('`
+- Vue Router warns about uncaught errors during navigation
+- The app may appear blank on first load in dev mode but works after refresh
+- Production builds (`pnpm build`) work without issues
+
+**Workaround:** Use the production build served by PocketBase for testing:
+```bash
+cd src && pnpm build
+cd .. && ./pocketbase/pocketbase serve
+# Access at http://127.0.0.1:8090
+```
+
+**Root cause:** Likely a minification edge case in the PocketBase SDK's ESM bundle that Vite's pre-bundler doesn't handle correctly. The built version (rolled up by Vite's production bundler) resolves it.
+
 ## Build and Deploy Workflow
 
 ```bash
