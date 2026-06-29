@@ -49,17 +49,19 @@
     <div v-else class="text-grey text-center q-pa-xl">
       <q-icon name="restaurant" size="48px" class="q-mb-md" />
       <div>Nenhuma refeição registrada hoje</div>
-      <q-btn color="primary" label="Adicionar refeição" to="/add" class="q-mt-md" />
+      <q-btn color="primary" label="Adicionar refeição" @click="openAddMealModal" class="q-mt-md" />
     </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { pocketbaseClient } from '@/boot/pocketbase'
 import { useQuasar } from 'quasar'
+import { useAddMealModal } from '@/composables/useAddMealModal'
 
 const $q = useQuasar()
+const { openAddMealModal, mealSavedCount } = useAddMealModal()
 const mealEntries = ref([])
 
 const mealTypeOrder = ['Café da manhã', 'Almoço', 'Lanche', 'Jantar']
@@ -119,4 +121,6 @@ async function deleteEntry(entryId) {
 }
 
 onMounted(fetchMealEntries)
+
+watch(mealSavedCount, fetchMealEntries)
 </script>
