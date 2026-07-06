@@ -1,7 +1,7 @@
 ---
 shortDescription: "Vue.js 3 SPA framework with Material Design components, Quasar CLI, and Vite plugin"
-version: "1.3.0"
-lastUpdated: "2026-06-28"
+version: "1.4.0"
+lastUpdated: "2026-07-06"
 ---
 
 ## Purpose
@@ -487,7 +487,49 @@ $q.dark.set(true); // or 'auto'
 </script>
 ```
 
-### 13. Vite plugin (alternative to Quasar CLI)
+### 13. Build output directory
+
+By default, Quasar builds to `src/dist/spa/`. To output to a custom location (e.g., directly into a backend's public directory), set `distDir` in `quasar.config.js`:
+
+```javascript
+build: {
+  distDir: '../pocketbase/pb_public',
+  vueRouterMode: 'hash'
+}
+```
+
+This eliminates the need for a copy step after building.
+
+### 14. Content Security Policy (CSP)
+
+When serving a Quasar SPA from a backend like PocketBase, the `index.html` template may include a CSP meta tag. In development mode, you need to allow connections to the backend API:
+
+```html
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';<% if (ctx.dev) { %> connect-src 'self' ws://localhost:* http://127.0.0.1:8090; worker-src 'self' blob:;<% } %>"
+/>
+```
+
+In production (served from the same origin as the API), no additional `connect-src` is needed.
+
+### 15. Environment variables
+
+Quasar supports `.env` files with the `QCLI_` prefix for exposing variables to the frontend:
+
+```bash
+# src/.env
+QCLI_SOME_PUBLIC_KEY=abc123
+```
+
+```javascript
+// In Vue components
+const value = import.meta.env.QCLI_SOME_PUBLIC_KEY
+```
+
+Only `QCLI_`-prefixed variables are exposed to the browser. Non-prefixed variables are ignored. Server-side secrets (API keys, tokens) should never use this prefix — keep them in backend environment variables only.
+
+### 16. Vite plugin (alternative to Quasar CLI)
 
 For existing Vite projects. **Pre-flight: ensure node and pnpm exist** (see section 1).
 
