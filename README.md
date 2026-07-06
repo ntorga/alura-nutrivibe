@@ -32,17 +32,9 @@ The AI feature is powered by [OpenCode Go](https://opencode.ai/docs/go/), an AI 
 
 Build workflow: `cd src && quasar build` (outputs directly to `pocketbase/pb_public/`) → PocketBase serves the SPA and API from a single binary.
 
-## Workshop Setup
+## Workshop
 
-The workshop runs 12 hours and covers the full environment setup before building:
-
-1. **WSL install** (Windows students) — Linux subsystem for running the dev toolchain
-2. **Node.js via [mise](https://mise.jdx.dev/)** — polyglot version manager for Node.js and other runtimes
-3. **[Zed](https://zed.dev/) install** — high-performance code editor
-4. **OpenCode install via npm** — `npm install -g opencode-ai`, runs inside Zed's built-in terminal
-5. **OpenCode Go setup** — subscribe at [opencode.ai/go](https://opencode.ai/docs/go/) and configure the API key
-6. **Collaborative planning** — user and agent discuss the full project plan via conversation
-7. **Agent-driven build** — OpenCode builds the project step by step from the agreed plan
+The workshop runs 12 hours across 4 lessons. See the [Lesson Plan](docs/LESSON-PLAN.md) for the full breakdown.
 
 ### PocketBase Superuser
 
@@ -51,6 +43,7 @@ The workshop runs 12 hours and covers the full environment setup before building
 
 ## Documentation
 
+- [Lesson Plan](docs/LESSON-PLAN.md) — workshop structure, setup steps, and lesson topics
 - [Epics](docs/EPICS.md) — project broken into small, independently deliverable increments
 - [Food Nutrition Database](docs/FOOD-NUTRITION-DB.md) — offline Brazilian food data and query examples
 - [Meal Parser Strategy](docs/MEAL-PARSER-STRATEGY.md) — architecture and implementation plan for photo-to-structured-form parsing
