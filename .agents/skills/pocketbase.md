@@ -1,7 +1,7 @@
 ---
 shortDescription: "Single-file Go backend with embedded SQLite, realtime subscriptions, auth, and REST API"
-version: "1.5.0"
-lastUpdated: "2026-06-28"
+version: "1.6.0"
+lastUpdated: "2026-07-06"
 ---
 
 ## Purpose
@@ -231,6 +231,10 @@ const updatedPost = await pocketbaseClient.collection('posts').update('recordId'
 // Delete
 await pocketbaseClient.collection('posts').delete('recordId');
 ```
+
+#### Field naming: snake_case passthrough
+
+PocketBase uses `snake_case` for field names in the database and API responses. The JavaScript SDK passes through these names as-is — it does **not** auto-convert to camelCase. Use the exact field names as defined in the collection when creating or updating records.
 
 #### Batch operations (enable in Dashboard > Settings > Application)
 
@@ -534,3 +538,4 @@ routerAdd("GET", "/api/meals/catalog", (e) => {
 - **Realtime needs EventSource.** For React Native, install `react-native-sse` polyfill.
 - **OAuth2 needs PKCE.** Use `authWithOAuth2Code` with code verifier/challenge.
 - **Filter by `@collection.*` requires superuser.** Regular users cannot filter across collections.
+- **SDK parse error in Vite dev mode.** `pocketbase@0.27.0` can trigger `SyntaxError: Unexpected token '('` in Chrome when loaded as an ES module through Vite's pre-bundler (e.g., Quasar dev server). The app still works in production builds. Workaround: test with `pnpm build` + `pocketbase serve` instead of the dev server.
