@@ -6,13 +6,12 @@ This project was built for an **Alura workshop** where students learn to set up 
 
 ## Features
 
-- Natural language meal logging — type what you ate in plain language (e.g., "almorcei arroz com feijão e frango grelhado ontem às 12h") and [DeepSeek V4 Flash](https://api-docs.deepseek.com/) parses it into structured form entries
 - Photo-based meal registration — snap a photo of your meal and [Mimo V2.5](https://platform.mimo.ai/) transforms it into structured form entries
 - Log meals throughout the day with detailed food entries
 - Automatic nutrition calculation (calories, macros, vitamins, minerals)
 - Weekly and monthly graphs for tracking progress over time (powered by [ApexCharts](https://apexcharts.com/))
 
-Both AI features are powered by [OpenCode Go](https://opencode.ai/docs/go/), an AI subscription service that provides access to multiple models.
+The AI feature is powered by [OpenCode Go](https://opencode.ai/docs/go/), an AI subscription service that provides access to multiple models.
 
 ## Tech Stack
 
@@ -21,7 +20,7 @@ Both AI features are powered by [OpenCode Go](https://opencode.ai/docs/go/), an 
 - **Backend:** PocketBase
 - **Database:** PocketBase (SQLite)
 - **Food Data:** [TACO](https://www.nepa.unicamp.br/taco/tabela.php) — 597 Brazilian foods
-- **AI:** OpenCode Go (DeepSeek V4 Flash for text, Mimo V2.5 for image recognition)
+- **AI:** OpenCode Go (Mimo V2.5 for image recognition)
 
 ## Project Structure
 
@@ -52,19 +51,22 @@ The workshop runs 12 hours and covers the full environment setup before building
 
 ## Documentation
 
-- [Food Nutrition Database](docs/food-nutrition-db.md) — offline Brazilian food data and query examples
-- [Meal Parser Strategy](docs/meal-parser-strategy.md) — architecture and implementation plan for text/image-to-structured-form parsing (design phase, to be implemented as the final step after the rest of the project is complete)
-- [Development Notes](docs/development-notes.md) — technical decisions, gotchas, and setup details
+- [Epics](docs/EPICS.md) — project broken into small, independently deliverable increments
+- [Food Nutrition Database](docs/FOOD-NUTRITION-DB.md) — offline Brazilian food data and query examples
+- [Meal Parser Strategy](docs/MEAL-PARSER-STRATEGY.md) — architecture and implementation plan for photo-to-structured-form parsing
+- [Development Notes](docs/DEVELOPMENT-NOTES.md) — technical decisions, gotchas, and setup details
+
+## Scope
+
+This is a **workshop project** — there is no user authentication. PocketBase ships with built-in user management, and wiring it into the Quasar frontend would take minimal effort. We chose to skip it so the workshop could focus its limited time on what matters most: building the AI-powered features that define the product.
 
 ## TODO
 
 Features not yet implemented:
 
-- **Natural language meal logging** — Integrate DeepSeek V4 Flash via OpenCode Go to parse free-text meal descriptions (e.g., "almorcei arroz com feijão ontem às 12h") into structured food entries. Should use a PocketBase JS hook (`pb_hooks/`) to call the API server-side, or a frontend API call. See [Meal Parser Strategy](docs/meal-parser-strategy.md) for the design.
 - **Photo-based meal registration** — Integrate Mimo V2.5 via OpenCode Go to recognize foods from a camera/photo. Requires a file upload component and an API call to the image recognition model.
 - **Weekly and monthly nutrition graphs** — Use ApexCharts.js to render time-series charts of calorie/macro intake. Load data from `meal_entries` grouped by date.
 - **Environment variables** — Add `pocketbase/.env.example` with `OPENCODE_GO_API_KEY=` placeholder. The AI API key is used server-side in PocketBase hooks (never exposed to the browser). Set via system env var or `.env` file in the `pocketbase/` directory, accessed via `$os.getenv("OPENCODE_GO_API_KEY")`.
-- **User authentication** — The app currently has no user auth. All data is public. Add PocketBase `users` collection auth so each user sees only their own meal entries.
 
 ## Agents
 
