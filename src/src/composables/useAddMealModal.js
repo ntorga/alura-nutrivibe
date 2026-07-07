@@ -1,19 +1,19 @@
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const addMealModalOpen = ref(false)
-const mealSavedCount = ref(0)
+const addMealModalOpen = ref(false);
+const mealSavedCount = ref(0);
 
 export function useAddMealModal() {
   function openAddMealModal() {
-    addMealModalOpen.value = true
+    addMealModalOpen.value = true;
   }
 
   function closeAddMealModal() {
-    addMealModalOpen.value = false
+    addMealModalOpen.value = false;
   }
 
   function notifySaved() {
-    mealSavedCount.value++
+    mealSavedCount.value++;
   }
 
   return {
@@ -21,6 +21,6 @@ export function useAddMealModal() {
     mealSavedCount,
     openAddMealModal,
     closeAddMealModal,
-    notifySaved
-  }
+    notifySaved,
+  };
 }

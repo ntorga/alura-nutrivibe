@@ -1,7 +1,7 @@
 # https://pnpm.io/settings
 
 allowBuilds:
-  '@parcel/watcher': true
+  "@parcel/watcher": true
   core-js: true
   electron-winstaller: true
   esbuild: true
