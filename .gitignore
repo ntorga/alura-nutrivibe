@@ -1,6 +1,8 @@
 .firecrawl
 node_modules
 package-lock.json
-pocketbase/
+pocketbase/*
+!pocketbase/.env.example
+!pocketbase/pb_hooks/
 tmp/
 TODO.md

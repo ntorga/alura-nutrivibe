@@ -31,8 +31,6 @@ OPENCODE_GO_API_KEY=your_key_here
 
 PocketBase automatically loads `.env` from its working directory. No `QCLI_` prefix is needed — this is a server-side variable, not a frontend variable.
 
-**TODO:** Add `pocketbase/.env.example` with `OPENCODE_GO_API_KEY=` placeholder.
-
 ## Architecture Decisions
 
 ### Why `pb_public/` is inside `pocketbase/`
