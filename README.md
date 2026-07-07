@@ -58,7 +58,6 @@ This is a **workshop project** — there is no user authentication. PocketBase s
 Features not yet implemented:
 
 - **Photo-based meal registration** — Integrate Mimo V2.5 via OpenCode Go to recognize foods from a camera/photo. Requires a file upload component and an API call to the image recognition model.
-- **Weekly and monthly nutrition graphs** — Use ApexCharts.js to render time-series charts of calorie/macro intake. Load data from `meal_entries` grouped by date.
 
 ## Agents
 

@@ -6,6 +6,7 @@ const routes = [
       { path: "", component: () => import("@/pages/HomePage.vue") },
       { path: "add", component: () => import("@/pages/AddMealPage.vue") },
       { path: "history", component: () => import("@/pages/MealHistoryPage.vue") },
+      { path: "charts", component: () => import("@/pages/ChartsPage.vue") },
     ],
   },
   {

@@ -93,11 +93,11 @@ The goal is to go from **total greenfield to a finished product** through a seri
 
 **Goal:** ApexCharts time-series graphs for calorie and macro trends.
 
-- [ ] Install ApexCharts dependency in Quasar project
-- [ ] Build `NutritionChart` component (line/area chart for calories over time)
-- [ ] Add weekly view (last 7 days) with daily breakdown
-- [ ] Add monthly view (last 30 days) with daily breakdown
-- [ ] Add macro toggle (protein, carbs, fat) on the same chart
+- [x] Install ApexCharts dependency in Quasar project
+- [x] Build `NutritionChart` component (line/area chart for calories over time)
+- [x] Add weekly view (last 7 days) with daily breakdown
+- [x] Add monthly view (last 30 days) with daily breakdown
+- [x] Add macro toggle (protein, carbs, fat) on the same chart
 
 ---
 

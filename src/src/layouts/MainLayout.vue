@@ -15,6 +15,7 @@
       <q-tabs>
         <q-route-tab icon="home" to="/" label="Hoje" />
         <q-route-tab icon="history" to="/history" label="Histórico" />
+        <q-route-tab icon="bar_chart" to="/charts" label="Gráficos" />
       </q-tabs>
     </q-footer>
 
