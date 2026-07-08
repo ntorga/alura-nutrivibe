@@ -34,7 +34,7 @@ routerAdd("GET", "/api/foods/search", (e) => {
         fiber_g: foodRecord.getFloat("fiber_g"),
       })
 
-      if (matchingFoods.length >= 20) break
+      if (matchingFoods.length >= 5) break
     }
   }
 

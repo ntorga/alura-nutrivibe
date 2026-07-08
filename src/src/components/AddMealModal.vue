@@ -360,6 +360,8 @@ async function onSearch(query) {
 
 function selectFood(food) {
   selectedFood.value = food;
+  searchResults.value = [];
+  searchQuery.value = "";
 }
 
 function addToManualList() {
