@@ -114,8 +114,9 @@ The goal is to go from **total greenfield to a finished product** through a seri
 - [x] Allow adding multiple foods manually in the Manual tab (matching photo tab behavior)
 - [x] Limit manual food list to 5 items per meal
 - [x] Make food search accent-insensitive (feijão matches feijao)
-- [ ] Hide food search dropdown after selecting an item
-- [ ] Limit search results dropdown to 5 items
+- [x] Hide food search dropdown after selecting an item
+- [ ] Limit search results dropdown to 5 items (allow scrolling for more)
+- [ ] Add delete button to manual items list
 
 ---
 
