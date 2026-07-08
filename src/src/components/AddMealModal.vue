@@ -74,9 +74,16 @@
                   <q-btn
                     label="Adicionar à lista"
                     color="primary"
-                    class="q-mt-sm"
+                    class="q-mt-sm q-mr-sm"
                     :disable="quantityGrams <= 0"
                     @click="addToManualList"
+                  />
+                  <q-btn
+                    label="Cancelar"
+                    flat
+                    color="grey"
+                    class="q-mt-sm"
+                    @click="clearSelection"
                   />
                 </q-card>
               </div>
@@ -362,6 +369,11 @@ function selectFood(food) {
   selectedFood.value = food;
   searchResults.value = [];
   searchQuery.value = "";
+}
+
+function clearSelection() {
+  selectedFood.value = null;
+  quantityGrams.value = 100;
 }
 
 function addToManualList() {

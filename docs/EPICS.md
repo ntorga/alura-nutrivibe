@@ -117,6 +117,7 @@ The goal is to go from **total greenfield to a finished product** through a seri
 - [x] Hide food search dropdown after selecting an item
 - [x] Limit search results dropdown to 5 items (allow scrolling for more)
 - [x] Add delete button to manual items list
+- [x] Add cancel button to deselect food before adding to list
 
 ---
 
