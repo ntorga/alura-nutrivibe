@@ -22,7 +22,13 @@ PocketBase is an open-source backend in a single Go binary. It provides an embed
 pgrep -f "pocketbase serve" &>/dev/null && echo "PocketBase is already running — skip setup"
 ```
 
-**Pre-flight 3/3: if not running, continue to setup below.**
+**Pre-flight 3/3: if not running, start with tmux to avoid shell timeout issues:**
+
+```bash
+tmux kill-server 2>/dev/null; tmux new-session -d -s pocketbase 'cd pocketbase && set -a && source .env 2>/dev/null && set +a && ./pocketbase serve' && sleep 2 && curl -s http://127.0.0.1:8090/api/health
+```
+
+This runs PocketBase in a detached tmux session, preventing the bash tool's timeout from interrupting the long-running process. The `set -a && source .env && set +a` pattern loads environment variables from `.env` (e.g., API keys) into the PocketBase process. To check logs: `tmux attach -t pocketbase` (then Ctrl+B, D to detach).
 
 ### 1. Setup and installation
 
@@ -440,6 +446,39 @@ routerAdd("POST", "/api/meals/parse", (e) => {
 })
 ```
 
+#### Reading uploaded files (multipart/form-data)
+
+```javascript
+routerAdd("POST", "/api/meals/parse", (e) => {
+    let uploadedFiles = e.findUploadedFiles("image")
+    if (uploadedFiles.length === 0) {
+        throw new BadRequestError("MissingImageUpload")
+    }
+
+    let uploadedFile = uploadedFiles[0]
+    let fileReader = uploadedFile.reader.open()
+    let fileSize = uploadedFile.size
+
+    // Read file content into Uint8Array
+    let fileContent = new Uint8Array(fileSize)
+    fileReader.read(fileContent)
+    fileReader.close()
+
+    // Convert to base64 (custom helper function needed)
+    let imageBase64 = bytesToBase64(fileContent)
+    let imageDataUrl = "data:image/jpeg;base64," + imageBase64
+
+    return e.json(200, { imageDataUrl })
+})
+```
+
+**File upload caveats:**
+- `findUploadedFiles(fieldName)` returns file objects with `reader`, `name`, `originalName`, `size` properties
+- The `reader` is a Go object — call `reader.open()` to get a readable stream with `read`, `close`, `seek` methods
+- Read into a `Uint8Array` (not a Go byte slice)
+- `reader.header.header["Content-Type"]` contains the MIME type
+- `$os.readFile(path)` does NOT work for uploaded files — they're in-memory, not on disk
+
 #### Writing responses
 
 ```javascript
@@ -524,6 +563,7 @@ routerAdd("GET", "/api/meals/catalog", (e) => {
 - **Only CommonJS.** `require()` works; ES modules need precompilation.
 - **JSON fields** require `record.get()` and `record.set()` helpers.
 - **`__hooks` global** provides the absolute path to the `pb_hooks` directory.
+- **AI responses may include markdown.** When parsing JSON from AI model responses, strip markdown code blocks (```json ... ```) before calling `JSON.parse()`.
 
 ## Guardrails
 
