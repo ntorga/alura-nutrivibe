@@ -347,11 +347,12 @@ async function onSearch(query) {
     return;
   }
   try {
-    const results = await pocketbaseClient.collection("foods").getList(1, 20, {
-      filter: `description~"${query}"`,
-      sort: "-energy_kcal",
-    });
-    searchResults.value = results.items;
+    const fetchResponse = await fetch(
+      `http://127.0.0.1:8090/api/foods/search?q=${encodeURIComponent(query)}`
+    );
+    if (!fetchResponse.ok) throw new Error("Search failed");
+    const responseData = await fetchResponse.json();
+    searchResults.value = responseData.items;
   } catch (error) {
     searchResults.value = [];
   }
@@ -363,6 +364,15 @@ function selectFood(food) {
 
 function addToManualList() {
   if (!selectedFood.value || quantityGrams.value <= 0) return;
+
+  if (manualItems.value.length >= 5) {
+    $q.notify({
+      color: "warning",
+      message: "Limite de 5 alimentos por refeição",
+      icon: "warning",
+    });
+    return;
+  }
 
   manualItems.value.push({
     foodRecord: selectedFood.value,
