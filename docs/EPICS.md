@@ -105,11 +105,12 @@ The goal is to go from **total greenfield to a finished product** through a seri
 
 **Goal:** Snap a photo of a meal and auto-generate structured entries.
 
-- [ ] Build `PhotoUpload` component (camera capture or file picker)
-- [ ] Create PocketBase JS hook to call Mimo V2.5 via OpenCode Go with the image
-- [ ] Build prompt template that identifies foods and estimates portions from a photo
-- [ ] Map recognized foods to `foods` collection entries
-- [ ] Populate MealEntryForm with recognized results for user review before saving
+- [x] Build `PhotoUpload` component (camera capture or file picker)
+- [x] Create PocketBase JS hook to call Mimo V2.5 via OpenCode Go with the image
+- [x] Build prompt template that identifies foods and estimates portions from a photo
+- [x] Map recognized foods to `foods` collection entries
+- [x] Integrate photo recognition into AddMealModal with MANUAL/FOTO tabs
+- [x] Populate MealEntryForm with recognized results for user review before saving
 
 ---
 

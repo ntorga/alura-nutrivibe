@@ -53,12 +53,6 @@ The workshop runs 12 hours across 4 lessons. See the [Lesson Plan](docs/LESSON-P
 
 This is a **workshop project** — there is no user authentication. PocketBase ships with built-in user management, and wiring it into the Quasar frontend would take minimal effort. We chose to skip it so the workshop could focus its limited time on what matters most: building the AI-powered features that define the product.
 
-## TODO
-
-Features not yet implemented:
-
-- **Photo-based meal registration** — Integrate Mimo V2.5 via OpenCode Go to recognize foods from a camera/photo. Requires a file upload component and an API call to the image recognition model.
-
 ## Agents
 
 The `.agents/` directory was committed for convenience but should be added to `.gitignore` in forks. See [AGENTS.md](AGENTS.md) for details.
