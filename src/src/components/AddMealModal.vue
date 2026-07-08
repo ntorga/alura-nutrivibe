@@ -1,82 +1,147 @@
 <template>
   <q-dialog v-model="dialogVisible" persistent>
-    <q-card style="min-width: 400px; max-width: 600px">
+    <q-card style="min-width: 400px; max-width: 700px">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">{{ editEntry ? "Editar refeição" : "Adicionar refeição" }}</div>
         <q-space />
-        <q-btn icon="close" flat round dense v-close-popup />
+        <q-btn icon="close" flat round dense v-close-popup :disable="isSaving" />
       </q-card-section>
 
       <q-card-section>
-        <q-form @submit="onSubmit" class="q-gutter-md">
-          <q-select
-            v-model="selectedMealType"
-            :options="mealTypeOptions"
-            label="Tipo de refeição"
-            filled
-            :rules="[(val) => !!val || 'Selecione o tipo']"
-          />
+        <q-select
+          v-model="selectedMealType"
+          :options="mealTypeOptions"
+          label="Tipo de refeição"
+          filled
+          class="q-mb-md"
+          :rules="[(val) => !!val || 'Selecione o tipo']"
+        />
 
-          <q-input
-            v-model="searchQuery"
-            label="Buscar alimento"
-            filled
-            debounce="300"
-            @update:model-value="onSearch"
-            clearable
-          >
-            <template #append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
+        <q-tabs v-model="activeTab" dense class="text-grey" active-color="primary" indicator-color="primary" align="justify" narrow-indicator>
+          <q-tab name="manual" label="Manual" />
+          <q-tab name="photo" label="Foto" />
+        </q-tabs>
 
-          <q-list v-if="searchResults.length" bordered separator class="rounded-borders">
-            <q-item
-              v-for="food in searchResults"
-              :key="food.id"
-              clickable
-              v-ripple
-              @click="selectFood(food)"
-              :class="{ 'bg-blue-1': selectedFood && selectedFood.id === food.id }"
-            >
-              <q-item-section>
-                <q-item-label>{{ food.description }}</q-item-label>
-                <q-item-label caption>
-                  {{ food.category }} · {{ food.energy_kcal }} kcal/100g
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-
-          <div v-if="selectedFood" class="q-mt-md">
-            <q-card flat bordered class="q-pa-md">
-              <div class="text-subtitle1 q-mb-sm">{{ selectedFood.description }}</div>
+        <q-tab-panels v-model="activeTab" animated class="q-mt-md">
+          <q-tab-panel name="manual">
+            <q-form @submit="onSubmitManual" class="q-gutter-md">
               <q-input
-                v-model.number="quantityGrams"
-                type="number"
-                label="Quantidade (gramas)"
+                v-model="searchQuery"
+                label="Buscar alimento"
                 filled
-                :rules="[(val) => val > 0 || 'Informe a quantidade']"
-              />
-              <div class="q-mt-sm text-caption text-grey">
-                {{ Math.round((selectedFood.energy_kcal * quantityGrams) / 100) }} kcal · P:
-                {{ Math.round((selectedFood.protein_g * quantityGrams) / 100) }}g · C:
-                {{ Math.round((selectedFood.carbohydrate_g * quantityGrams) / 100) }}g · G:
-                {{ Math.round((selectedFood.lipid_g * quantityGrams) / 100) }}g
-              </div>
-            </q-card>
-          </div>
+                debounce="300"
+                @update:model-value="onSearch"
+                clearable
+              >
+                <template #append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
 
-          <div class="row justify-end q-gutter-sm q-mt-md">
-            <q-btn label="Cancelar" flat v-close-popup />
-            <q-btn
-              type="submit"
-              label="Salvar"
-              color="primary"
-              :disable="!selectedFood || quantityGrams <= 0"
-            />
-          </div>
-        </q-form>
+              <q-list v-if="searchResults.length" bordered separator class="rounded-borders">
+                <q-item
+                  v-for="food in searchResults"
+                  :key="food.id"
+                  clickable
+                  v-ripple
+                  @click="selectFood(food)"
+                  :class="{ 'bg-blue-1': selectedFood && selectedFood.id === food.id }"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ food.description }}</q-item-label>
+                    <q-item-label caption>
+                      {{ food.category }} · {{ food.energy_kcal }} kcal/100g
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+
+              <div v-if="selectedFood" class="q-mt-md">
+                <q-card flat bordered class="q-pa-md">
+                  <div class="text-subtitle1 q-mb-sm">{{ selectedFood.description }}</div>
+                  <q-input
+                    v-model.number="quantityGrams"
+                    type="number"
+                    label="Quantidade (gramas)"
+                    filled
+                    :rules="[(val) => val > 0 || 'Informe a quantidade']"
+                  />
+                  <div class="q-mt-sm text-caption text-grey">
+                    {{ Math.round((selectedFood.energy_kcal * quantityGrams) / 100) }} kcal · P:
+                    {{ Math.round((selectedFood.protein_g * quantityGrams) / 100) }}g · C:
+                    {{ Math.round((selectedFood.carbohydrate_g * quantityGrams) / 100) }}g · G:
+                    {{ Math.round((selectedFood.lipid_g * quantityGrams) / 100) }}g
+                  </div>
+                </q-card>
+              </div>
+
+              <div class="row justify-end q-gutter-sm q-mt-md">
+                <q-btn label="Cancelar" flat v-close-popup />
+                <q-btn
+                  type="submit"
+                  label="Salvar"
+                  color="primary"
+                  :disable="!selectedFood || quantityGrams <= 0"
+                />
+              </div>
+            </q-form>
+          </q-tab-panel>
+
+          <q-tab-panel name="photo">
+            <div v-if="!recognizedItems.length">
+              <PhotoUpload @recognized="onRecognized" @error="onError" />
+            </div>
+
+            <div v-else>
+              <div class="text-subtitle2 q-mb-sm">Alimentos reconhecidos</div>
+              <q-list bordered separator class="rounded-borders q-mb-md">
+                <q-item v-for="(item, index) in recognizedItems" :key="index">
+                  <q-item-section>
+                    <q-item-label>{{ item.description }}</q-item-label>
+                    <q-item-label caption>
+                      {{ Math.round((item.foodRecord.energy_kcal * item.quantityGrams) / 100) }} kcal
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <div class="row items-center q-gutter-sm">
+                      <q-input
+                        v-model.number="item.quantityGrams"
+                        type="number"
+                        dense
+                        outlined
+                        style="width: 100px"
+                        suffix="g"
+                        :rules="[(val) => val > 0 || '']"
+                      />
+                      <q-btn
+                        flat
+                        round
+                        icon="delete"
+                        color="negative"
+                        size="sm"
+                        @click="removeItem(index)"
+                      />
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+
+              <div class="row justify-between q-gutter-sm">
+                <q-btn label="Nova foto" flat @click="resetPhoto" :disable="isSaving" />
+                <div class="row q-gutter-sm">
+                  <q-btn label="Cancelar" flat v-close-popup :disable="isSaving" />
+                  <q-btn
+                    label="Salvar tudo"
+                    color="primary"
+                    :loading="isSaving"
+                    :disable="!recognizedItems.length || !selectedMealType"
+                    @click="saveAllItems"
+                  />
+                </div>
+              </div>
+            </div>
+          </q-tab-panel>
+        </q-tab-panels>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -86,6 +151,7 @@
 import { ref, watch } from "vue";
 import { pocketbaseClient } from "@/boot/pocketbase";
 import { useQuasar } from "quasar";
+import PhotoUpload from "@/components/PhotoUpload.vue";
 
 const $q = useQuasar();
 
@@ -100,11 +166,21 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue", "saved"]);
 
 const mealTypeOptions = ["Café da manhã", "Almoço", "Lanche", "Jantar"];
+const mealTypeMap = {
+  breakfast: "Café da manhã",
+  lunch: "Almoço",
+  dinner: "Jantar",
+  snack: "Lanche",
+};
+
 const selectedMealType = ref("");
+const activeTab = ref("manual");
 const searchQuery = ref("");
 const searchResults = ref([]);
 const selectedFood = ref(null);
 const quantityGrams = ref(100);
+const recognizedItems = ref([]);
+const isSaving = ref(false);
 
 const dialogVisible = ref(false);
 
@@ -129,10 +205,13 @@ watch(dialogVisible, (val) => {
 
 function resetForm() {
   selectedMealType.value = "";
+  activeTab.value = "manual";
   searchQuery.value = "";
   searchResults.value = [];
   selectedFood.value = null;
   quantityGrams.value = 100;
+  recognizedItems.value = [];
+  isSaving.value = false;
 }
 
 function loadEditEntry(entry) {
@@ -174,7 +253,7 @@ function selectFood(food) {
   selectedFood.value = food;
 }
 
-async function onSubmit() {
+async function onSubmitManual() {
   if (!selectedFood.value || quantityGrams.value <= 0) return;
 
   const factor = quantityGrams.value / 100;
@@ -204,6 +283,93 @@ async function onSubmit() {
     dialogVisible.value = false;
   } catch (error) {
     $q.notify({ type: "negative", message: "Erro ao salvar refeição" });
+  }
+}
+
+async function onRecognized(responseData) {
+  if (responseData.mealType && mealTypeMap[responseData.mealType]) {
+    selectedMealType.value = mealTypeMap[responseData.mealType];
+  }
+
+  const foodLookups = await Promise.all(
+    responseData.entries.map(async (entry) => {
+      try {
+        const foodResults = await pocketbaseClient.collection("foods").getList(1, 1, {
+          filter: `taco_id = ${entry.tacoId}`,
+        });
+        return {
+          tacoId: entry.tacoId,
+          description: entry.description,
+          quantityGrams: entry.quantityGrams,
+          foodRecord: foodResults.items[0] || null,
+        };
+      } catch (error) {
+        return {
+          tacoId: entry.tacoId,
+          description: entry.description,
+          quantityGrams: entry.quantityGrams,
+          foodRecord: null,
+        };
+      }
+    })
+  );
+
+  recognizedItems.value = foodLookups.filter((item) => item.foodRecord);
+
+  if (!recognizedItems.value.length) {
+    $q.notify({
+      color: "negative",
+      message: "Nenhum alimento reconhecido",
+      icon: "error",
+    });
+  }
+}
+
+function onError() {
+  $q.notify({
+    color: "negative",
+    message: "Erro ao reconhecer refeição",
+    icon: "error",
+  });
+}
+
+function removeItem(index) {
+  recognizedItems.value.splice(index, 1);
+}
+
+function resetPhoto() {
+  recognizedItems.value = [];
+}
+
+async function saveAllItems() {
+  if (!recognizedItems.value.length || !selectedMealType.value) return;
+
+  isSaving.value = true;
+  const now = new Date().toISOString().replace("T", " ").slice(0, 19);
+
+  try {
+    for (const item of recognizedItems.value) {
+      const factor = item.quantityGrams / 100;
+      await pocketbaseClient.collection("meal_entries").create({
+        food: item.foodRecord.id,
+        quantity_g: item.quantityGrams,
+        meal_type: selectedMealType.value,
+        consumed_at: now,
+        energy_kcal: item.foodRecord.energy_kcal * factor,
+        protein_g: item.foodRecord.protein_g * factor,
+        carbohydrate_g: item.foodRecord.carbohydrate_g * factor,
+        lipid_g: item.foodRecord.lipid_g * factor,
+        fiber_g: item.foodRecord.fiber_g * factor,
+      });
+    }
+
+    $q.notify({ type: "positive", message: "Refeição salva!" });
+    emit("saved");
+    dialogVisible.value = false;
+  } catch (error) {
+    $q.notify({ type: "negative", message: "Erro ao salvar refeição" });
+  } finally {
+    isSaving.value = false;
   }
 }
 </script>

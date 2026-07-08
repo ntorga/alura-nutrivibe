@@ -93,7 +93,13 @@
       <div>Nenhuma refeição registrada neste dia</div>
     </div>
 
-    <AddMealModal v-model="editModalOpen" :edit-entry="editingEntry" @saved="onEntrySaved" />
+    <AddMealModal v-model="addModalOpen" :edit-entry="editingEntry" @saved="onEntrySaved" />
+
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-fab icon="add" direction="up" color="primary">
+        <q-fab-action icon="restaurant" label="Adicionar refeição" @click="openAddModal" />
+      </q-fab>
+    </q-page-sticky>
   </q-page>
 </template>
 
@@ -109,7 +115,7 @@ const { mealSavedCount } = useAddMealModal();
 
 const selectedDate = ref(formatDate(new Date()));
 const mealEntries = ref([]);
-const editModalOpen = ref(false);
+const addModalOpen = ref(false);
 const editingEntry = ref(null);
 
 const mealTypeOrder = ["Café da manhã", "Almoço", "Lanche", "Jantar"];
@@ -219,7 +225,12 @@ async function fetchMealEntries() {
 
 function editEntry(entry) {
   editingEntry.value = entry;
-  editModalOpen.value = true;
+  addModalOpen.value = true;
+}
+
+function openAddModal() {
+  editingEntry.value = null;
+  addModalOpen.value = true;
 }
 
 function confirmDelete(entryId) {
@@ -242,7 +253,7 @@ async function deleteEntry(entryId) {
 }
 
 function onEntrySaved() {
-  editModalOpen.value = false;
+  addModalOpen.value = false;
   editingEntry.value = null;
   fetchMealEntries();
 }
