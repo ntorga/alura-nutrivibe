@@ -38,7 +38,7 @@
                 </template>
               </q-input>
 
-              <q-list v-if="searchResults.length" bordered separator class="rounded-borders q-mt-md">
+              <q-list v-if="searchResults.length" bordered separator class="rounded-borders q-mt-md" style="max-height: 280px; overflow-y: auto;">
                 <q-item
                   v-for="food in searchResults"
                   :key="food.id"
@@ -143,7 +143,7 @@
                   </template>
                 </q-input>
 
-                <q-list v-if="searchResults.length" bordered separator class="rounded-borders">
+                <q-list v-if="searchResults.length" bordered separator class="rounded-borders" style="max-height: 280px; overflow-y: auto;">
                   <q-item
                     v-for="food in searchResults"
                     :key="food.id"
