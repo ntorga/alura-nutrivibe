@@ -24,7 +24,7 @@
 
         <q-tab-panels v-model="activeTab" animated class="q-mt-md">
           <q-tab-panel name="manual">
-            <q-form @submit="onSubmitManual" class="q-gutter-md">
+            <div v-if="!editEntry">
               <q-input
                 v-model="searchQuery"
                 label="Buscar alimento"
@@ -38,14 +38,13 @@
                 </template>
               </q-input>
 
-              <q-list v-if="searchResults.length" bordered separator class="rounded-borders">
+              <q-list v-if="searchResults.length" bordered separator class="rounded-borders q-mt-md">
                 <q-item
                   v-for="food in searchResults"
                   :key="food.id"
                   clickable
                   v-ripple
                   @click="selectFood(food)"
-                  :class="{ 'bg-blue-1': selectedFood && selectedFood.id === food.id }"
                 >
                   <q-item-section>
                     <q-item-label>{{ food.description }}</q-item-label>
@@ -72,19 +71,126 @@
                     {{ Math.round((selectedFood.carbohydrate_g * quantityGrams) / 100) }}g · G:
                     {{ Math.round((selectedFood.lipid_g * quantityGrams) / 100) }}g
                   </div>
+                  <q-btn
+                    label="Adicionar à lista"
+                    color="primary"
+                    class="q-mt-sm"
+                    :disable="quantityGrams <= 0"
+                    @click="addToManualList"
+                  />
                 </q-card>
               </div>
 
+              <div v-if="manualItems.length" class="q-mt-md">
+                <div class="text-subtitle2 q-mb-sm">Alimentos adicionados</div>
+                <q-list bordered separator class="rounded-borders q-mb-md">
+                  <q-item v-for="(item, index) in manualItems" :key="index">
+                    <q-item-section>
+                      <q-item-label>{{ item.description }}</q-item-label>
+                      <q-item-label caption>
+                        {{ Math.round((item.foodRecord.energy_kcal * item.quantityGrams) / 100) }} kcal
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <div class="row items-center q-gutter-sm">
+                        <q-input
+                          v-model.number="item.quantityGrams"
+                          type="number"
+                          dense
+                          outlined
+                          style="width: 100px"
+                          suffix="g"
+                          :rules="[(val) => val > 0 || '']"
+                        />
+                        <q-btn
+                          flat
+                          round
+                          icon="delete"
+                          color="negative"
+                          size="sm"
+                          @click="removeManualItem(index)"
+                        />
+                      </div>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+
               <div class="row justify-end q-gutter-sm q-mt-md">
-                <q-btn label="Cancelar" flat v-close-popup />
+                <q-btn label="Cancelar" flat v-close-popup :disable="isSaving" />
                 <q-btn
-                  type="submit"
-                  label="Salvar"
+                  label="Salvar tudo"
                   color="primary"
-                  :disable="!selectedFood || quantityGrams <= 0"
+                  :loading="isSaving"
+                  :disable="!manualItems.length || !selectedMealType"
+                  @click="saveManualItems"
                 />
               </div>
-            </q-form>
+            </div>
+
+            <div v-else>
+              <q-form @submit="onSubmitEdit" class="q-gutter-md">
+                <q-input
+                  v-model="searchQuery"
+                  label="Buscar alimento"
+                  filled
+                  debounce="300"
+                  @update:model-value="onSearch"
+                  clearable
+                >
+                  <template #append>
+                    <q-icon name="search" />
+                  </template>
+                </q-input>
+
+                <q-list v-if="searchResults.length" bordered separator class="rounded-borders">
+                  <q-item
+                    v-for="food in searchResults"
+                    :key="food.id"
+                    clickable
+                    v-ripple
+                    @click="selectFood(food)"
+                    :class="{ 'bg-blue-1': selectedFood && selectedFood.id === food.id }"
+                  >
+                    <q-item-section>
+                      <q-item-label>{{ food.description }}</q-item-label>
+                      <q-item-label caption>
+                        {{ food.category }} · {{ food.energy_kcal }} kcal/100g
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+
+                <div v-if="selectedFood" class="q-mt-md">
+                  <q-card flat bordered class="q-pa-md">
+                    <div class="text-subtitle1 q-mb-sm">{{ selectedFood.description }}</div>
+                    <q-input
+                      v-model.number="quantityGrams"
+                      type="number"
+                      label="Quantidade (gramas)"
+                      filled
+                      :rules="[(val) => val > 0 || 'Informe a quantidade']"
+                    />
+                    <div class="q-mt-sm text-caption text-grey">
+                      {{ Math.round((selectedFood.energy_kcal * quantityGrams) / 100) }} kcal · P:
+                      {{ Math.round((selectedFood.protein_g * quantityGrams) / 100) }}g · C:
+                      {{ Math.round((selectedFood.carbohydrate_g * quantityGrams) / 100) }}g · G:
+                      {{ Math.round((selectedFood.lipid_g * quantityGrams) / 100) }}g
+                    </div>
+                  </q-card>
+                </div>
+
+                <div class="row justify-end q-gutter-sm q-mt-md">
+                  <q-btn label="Cancelar" flat v-close-popup />
+                  <q-btn
+                    type="submit"
+                    label="Salvar"
+                    color="primary"
+                    :disable="!selectedFood || quantityGrams <= 0"
+                  />
+                </div>
+              </q-form>
+            </div>
           </q-tab-panel>
 
           <q-tab-panel name="photo">
@@ -179,6 +285,7 @@ const searchQuery = ref("");
 const searchResults = ref([]);
 const selectedFood = ref(null);
 const quantityGrams = ref(100);
+const manualItems = ref([]);
 const recognizedItems = ref([]);
 const isSaving = ref(false);
 
@@ -210,6 +317,7 @@ function resetForm() {
   searchResults.value = [];
   selectedFood.value = null;
   quantityGrams.value = 100;
+  manualItems.value = [];
   recognizedItems.value = [];
   isSaving.value = false;
 }
@@ -253,7 +361,58 @@ function selectFood(food) {
   selectedFood.value = food;
 }
 
-async function onSubmitManual() {
+function addToManualList() {
+  if (!selectedFood.value || quantityGrams.value <= 0) return;
+
+  manualItems.value.push({
+    foodRecord: selectedFood.value,
+    description: selectedFood.value.description,
+    quantityGrams: quantityGrams.value,
+  });
+
+  selectedFood.value = null;
+  quantityGrams.value = 100;
+  searchQuery.value = "";
+  searchResults.value = [];
+}
+
+function removeManualItem(index) {
+  manualItems.value.splice(index, 1);
+}
+
+async function saveManualItems() {
+  if (!manualItems.value.length || !selectedMealType.value) return;
+
+  isSaving.value = true;
+  const now = new Date().toISOString().replace("T", " ").slice(0, 19);
+
+  try {
+    for (const item of manualItems.value) {
+      const factor = item.quantityGrams / 100;
+      await pocketbaseClient.collection("meal_entries").create({
+        food: item.foodRecord.id,
+        quantity_g: item.quantityGrams,
+        meal_type: selectedMealType.value,
+        consumed_at: now,
+        energy_kcal: item.foodRecord.energy_kcal * factor,
+        protein_g: item.foodRecord.protein_g * factor,
+        carbohydrate_g: item.foodRecord.carbohydrate_g * factor,
+        lipid_g: item.foodRecord.lipid_g * factor,
+        fiber_g: item.foodRecord.fiber_g * factor,
+      });
+    }
+
+    $q.notify({ type: "positive", message: "Refeição salva!" });
+    emit("saved");
+    dialogVisible.value = false;
+  } catch (error) {
+    $q.notify({ type: "negative", message: "Erro ao salvar refeição" });
+  } finally {
+    isSaving.value = false;
+  }
+}
+
+async function onSubmitEdit() {
   if (!selectedFood.value || quantityGrams.value <= 0) return;
 
   const factor = quantityGrams.value / 100;
@@ -270,14 +429,8 @@ async function onSubmitManual() {
       fiber_g: selectedFood.value.fiber_g * factor,
     };
 
-    if (props.editEntry) {
-      await pocketbaseClient.collection("meal_entries").update(props.editEntry.id, data);
-      $q.notify({ type: "positive", message: "Refeição atualizada!" });
-    } else {
-      data.consumed_at = new Date().toISOString().replace("T", " ").slice(0, 19);
-      await pocketbaseClient.collection("meal_entries").create(data);
-      $q.notify({ type: "positive", message: "Refeição adicionada!" });
-    }
+    await pocketbaseClient.collection("meal_entries").update(props.editEntry.id, data);
+    $q.notify({ type: "positive", message: "Refeição atualizada!" });
 
     emit("saved");
     dialogVisible.value = false;

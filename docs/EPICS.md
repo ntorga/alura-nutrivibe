@@ -111,6 +111,7 @@ The goal is to go from **total greenfield to a finished product** through a seri
 - [x] Map recognized foods to `foods` collection entries
 - [x] Integrate photo recognition into AddMealModal with MANUAL/FOTO tabs
 - [x] Populate MealEntryForm with recognized results for user review before saving
+- [ ] Allow adding multiple foods manually in the Manual tab (matching photo tab behavior)
 
 ---
 
