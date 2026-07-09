@@ -24,10 +24,10 @@ The goal is to go from **total greenfield to a finished product** through a seri
 
 **Goal:** Quasar SPA and PocketBase running locally with a health-check page.
 
-- [ ] Initialize Quasar project in `src/` with Vue 3 + Vite
-- [ ] Initialize PocketBase in `pocketbase/` and verify it starts
-- [ ] Configure Quasar to build into `pocketbase/pb_public/`
-- [ ] Serve a static "NutriVibe" landing page from PocketBase
+- [x] Initialize Quasar project in `src/` with Vue 3 + Vite
+- [x] Initialize PocketBase in `pocketbase/` and verify it starts
+- [x] Configure Quasar to build into `pocketbase/pb_public/`
+- [x] Serve a static "NutriVibe" landing page from PocketBase
 
 ---
 
@@ -35,10 +35,10 @@ The goal is to go from **total greenfield to a finished product** through a seri
 
 **Goal:** Database collections for food items and meal entries, seeded with TACO data.
 
-- [ ] Create `foods` collection (name, calories, protein, carbs, fat, fiber, vitamins)
-- [ ] Create `meal_entries` collection (date, time, meal type, notes)
-- [ ] Create `meal_items` collection (food → meal_entry link, quantity_grams)
-- [ ] Import TACO CSV data into `foods` collection
+- [x] Create `foods` collection (name, calories, protein, carbs, fat, fiber, vitamins)
+- [x] Create `meal_entries` collection (date, time, meal type, notes)
+- [x] Create `meal_items` collection (food → meal_entry link, quantity_grams)
+- [x] Import TACO CSV data into `foods` collection
 
 ---
 
@@ -46,11 +46,11 @@ The goal is to go from **total greenfield to a finished product** through a seri
 
 **Goal:** A form to manually log meals by selecting foods and entering quantities.
 
-- [ ] Create a Quasar layout with header, drawer, and main content area
-- [ ] Build `MealEntryForm` component (date, time, meal type selector)
-- [ ] Build `FoodSelector` component (search/autocomplete from `foods` collection)
-- [ ] Build `MealItemRow` component (food + quantity in grams + calculated totals)
-- [ ] Wire form submission to PocketBase API to create `meal_entry` + `meal_items`
+- [x] Create a Quasar layout with header, drawer, and main content area
+- [x] Build `MealEntryForm` component (date, time, meal type selector)
+- [x] Build `FoodSelector` component (search/autocomplete from `foods` collection)
+- [x] Build `MealItemRow` component (food + quantity in grams + calculated totals)
+- [x] Wire form submission to PocketBase API to create `meal_entry` + `meal_items`
 
 ---
 
@@ -58,10 +58,10 @@ The goal is to go from **total greenfield to a finished product** through a seri
 
 **Goal:** Real-time calorie and macro totals as the user adds foods to a meal.
 
-- [ ] Compute per-item nutrition from `foods` table × quantity_grams
-- [ ] Display running totals (calories, protein, carbs, fat, fiber) in the form
-- [ ] Show per-item breakdown in the meal item list
-- [ ] Persist calculated totals on the `meal_entry` record for fast queries
+- [x] Compute per-item nutrition from `foods` table × quantity_grams
+- [x] Display running totals (calories, protein, carbs, fat, fiber) in the form
+- [x] Show per-item breakdown in the meal item list
+- [x] Persist calculated totals on the `meal_entry` record for fast queries
 
 ---
 
