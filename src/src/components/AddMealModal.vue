@@ -180,12 +180,11 @@ async function onSearch(query) {
     return
   }
   try {
-    const response = await fetch(
-      `http://127.0.0.1:8090/api/foods/search?q=${encodeURIComponent(query)}`
-    )
-    if (!response.ok) throw new Error('Search failed')
-    const data = await response.json()
-    searchResults.value = data.items
+    const results = await pocketbaseClient.collection('foods').getList(1, 20, {
+      filter: `description~"${query}"`,
+      sort: '-energy_kcal'
+    })
+    searchResults.value = results.items
   } catch (error) {
     searchResults.value = []
   }
