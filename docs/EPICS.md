@@ -90,12 +90,14 @@ Plus vitamin/mineral fields (calcium_mg, iron_mg, sodium_mg, etc.) — not used 
 
 ## Epic 3: Basic Meal Logging UI
 
-**Goal:** A form to manually log meals by selecting foods and entering quantities.
+**Goal:** A form to manually log meals by selecting multiple foods and entering quantities.
 
 - [x] Create a Quasar layout with header ("NutriVibe") and bottom navigation tabs: **HOJE** (today), **HISTÓRICO** (history), **GRÁFICOS** (charts)
 - [x] Build `AddMealModal` dialog (triggered by floating action button) with meal type dropdown and food search
 - [x] Build `FoodSelector` — search input with debounced autocomplete against `foods` collection. Search should be **accent-insensitive** (typing "feijao" matches "feijão"). Limit dropdown to 5 visible items with scroll. Hide dropdown after selecting an item.
-- [x] Build meal item rows showing food description, quantity input (grams), and per-item calculated nutrition
+- [x] Support adding **multiple foods** to a single meal: each food appears as an item row with its description, editable quantity input (grams), per-item calculated nutrition, and a delete button (×) to remove it
+- [x] Add a **CANCELAR** button to deselect/clear a selected food before adding it to the list
+- [x] Limit the meal item list to **5 foods** per meal
 - [x] Wire form submission to PocketBase API: for each food in the meal, create one `meal_entries` record with `food` relation, `quantity_g`, `meal_type`, `consumed_at`, and pre-calculated nutrition fields
 - [x] Use Portuguese meal type values: `Café da manhã`, `Almoço`, `Jantar`, `Lanche`
 
@@ -157,13 +159,9 @@ Plus vitamin/mineral fields (calcium_mg, iron_mg, sodium_mg, etc.) — not used 
 **Goal:** Snap a photo of a meal and auto-generate structured entries.
 
 - [ ] Build `PhotoUpload` component with two options: **TIRAR FOTO** (camera capture via `navigator.mediaDevices`) and **ESCOLHER IMAGEM** (file picker)
-- [ ] Add MANUAL/FOTO tabs to `AddMealModal` — MANUAL shows the food search form, FOTO shows the photo upload
+- [ ] Add MANUAL/FOTO tabs to `AddMealModal` — MANUAL shows the existing multi-item food list form, FOTO shows the photo upload
 - [ ] Photo flow: user captures/selects image → frontend sends image to `POST /api/meals/parse` (multipart form data) → PocketBase JS hook (`pb_hooks/meal-parser.pb.js`) calls Mimo V2.5 via OpenCode Go → hook returns structured JSON with recognized foods and estimated portions → frontend populates the meal item list with the results for user review before saving
 - [ ] Map recognized food names to `foods` collection entries via description search (accent-insensitive)
-- [ ] Allow adding multiple foods manually in the MANUAL tab (same item row behavior as FOTO results)
-- [ ] Limit manual food list to 5 items per meal
-- [ ] Add delete button (×) to each manual item row
-- [ ] Add CANCELAR button to deselect/clear a selected food before adding it to the list
 
 ---
 
