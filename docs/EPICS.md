@@ -95,7 +95,7 @@ Plus vitamin/mineral fields (calcium_mg, iron_mg, sodium_mg, etc.) — not used 
 
 - [x] Create a Quasar layout with header ("NutriVibe") and bottom navigation tabs: **HOJE** (today), **HISTÓRICO** (history), **GRÁFICOS** (charts)
 - [x] Build `AddMealModal` dialog (triggered by floating action button) with meal type dropdown and food search
-- [x] Build `FoodSelector` — search input with debounced autocomplete against `foods` collection. Search should be **accent-insensitive** (typing "feijao" matches "feijão"). Limit dropdown to 5 visible items with scroll. Hide dropdown after selecting an item.
+- [x] Build `FoodSelector` — search input with debounced autocomplete against a custom `/api/foods/search` endpoint. The endpoint normalizes strings (strips accents, lowercases) so typing "feijao" matches "feijão". Limit dropdown to 5 visible items with scroll. Hide dropdown after selecting an item.
 - [x] Support adding **multiple foods** to a single meal: each food appears as an item row with its description, editable quantity input (grams), per-item calculated nutrition, and a delete button (×) to remove it
 - [x] Add a **CANCELAR** button to deselect/clear a selected food before adding it to the list
 - [x] Limit the meal item list to **5 foods** per meal
