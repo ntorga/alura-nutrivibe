@@ -73,6 +73,7 @@ Plus vitamin/mineral fields (calcium_mg, iron_mg, sodium_mg, etc.) — not used 
 - [x] Initialize PocketBase in `pocketbase/` and verify it starts
 - [x] Configure Quasar to build into `pocketbase/pb_public/`
 - [x] Serve a static "NutriVibe" landing page from PocketBase
+- [x] Configure Content-Security-Policy in `src/index.html` with `connect-src 'self' http://127.0.0.1:8090` so API calls work in both dev and production builds
 
 ---
 
