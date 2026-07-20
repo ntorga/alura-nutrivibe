@@ -21,7 +21,7 @@ Provides web search, page scraping, site URL discovery, and bulk content extract
 **Ensure firecrawl CLI and jq exist.** Install if missing:
 
 ```bash
-command -v firecrawl &>/dev/null || { echo "ERROR: firecrawl CLI not found. Install via: npm install -g @mendable/firecrawl-cli"; exit 1; }
+command -v firecrawl &>/dev/null || { echo "ERROR: firecrawl CLI not found. Install via: npm install -g firecrawl-cli"; exit 1; }
 command -v jq        &>/dev/null || { echo "ERROR: jq not found. Install via: apt-get install jq / brew install jq"; exit 1; }
 ```
 

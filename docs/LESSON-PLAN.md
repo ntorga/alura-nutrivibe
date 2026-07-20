@@ -17,12 +17,18 @@
 **WHAT:**
 
 - **Setup (70 min)** — verify after each step, raise hand if stuck
-  - WSL install (Windows only) / verify terminal (Mac/Linux)
-  - Node.js via [mise](https://mise.jdx.dev/) — verify `node --version`
   - [Zed](https://zed.dev/) install
-  - OpenCode install via npm — `npm install -g opencode-ai`
-  - OpenCode Go setup — subscribe at [opencode.ai/go](https://opencode.ai/docs/go/), configure API key
-  - Install agent-browser — `npm install -g agent-browser && agent-browser install`
+  - WSL install (Windows only) / verify terminal (Mac/Linux) - optional: `sudo apt update && sudo apt upgrade -y`
+  - Node.js via [mise](https://mise.jdx.dev/) — `mise use -g node@lts` then update npm `npm -g install npm`
+  - SFW install via npm — `npm install -g sfw`
+  - OpenCode install via npm:
+    - `sfw npm install -g opencode-ai`
+    - `npm config set allow-scripts=opencode-ai --location=user`
+    - `sfw npm install -g opencode-ai`
+  - OpenCode Go setup — subscribe at [opencode.ai/go](https://opencode.ai/docs/go/)
+    - `opencode auth login`
+  - Install agent-browser — `sfw npm install -g agent-browser && agent-browser install`
+  - Clone the project repository — `git clone https://github.com/ntorga/alura-nutrivibe.git`
   - Project skills — how to use `.agents/skills/` for domain-specific guidance. Reference a skill by typing `@` followed by the skill file path (e.g., `@.agents/skills/pocketbase.md`) in your prompt.
 - **Q&A (10 min)** — setup issues, environment problems
 - **AI fundamentals (65 min)**
