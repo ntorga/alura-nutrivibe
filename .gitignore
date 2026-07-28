@@ -6,3 +6,8 @@ pocketbase/*
 !pocketbase/pb_hooks/
 tmp/
 TODO.md
+test-results/
+playwright/test-results/
+playwright/playwright-report/
+playwright/blob-report/
+playwright/.last-run.json
