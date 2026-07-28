@@ -8,7 +8,7 @@
 
 ## Lesson 1: Setup + AI Fundamentals (3h)
 
-> **This is AI Product Building, not Vibe Coding.** We won't have a working app by the end of today — and that's intentional. Product building means understanding the problem, choosing tools, and knowing what the agent produces. The first two lessons are heavy on learning. By Lesson 3, you'll be building with confidence because you'll understand every decision.
+> **This is AI Product Building, not Vibe Coding.** We won't have a working app by the end of today — and that's intentional. Product building means understanding the problem, choosing tools, and knowing what the agent produces. The first two lessons are heavy on learning. By Lesson 3, you'll be building the entire app because you'll understand every decision.
 
 **WHY:** A chef needs sharp knives and to know how heat works. Today: tools and AI fundamentals.
 
@@ -90,9 +90,9 @@
 
 ---
 
-## Lesson 3: First Epics (3h)
+## Lesson 3: Build the App (3h)
 
-**WHY:** A spec without working code is a wish. Today we prove our design choices by making them run.
+**WHY:** A spec without working code is a wish. Today we build the entire app — from bootstrap to the AI-powered photo feature.
 
 **HOW:** You are the product owner. The agent is the developer. You give it a task from EPICS.md, it writes the code, you review the diff, you run it, you test it. If something is wrong, describe the problem clearly — the agent fixes faster when you're specific.
 
@@ -100,47 +100,63 @@
 
 - **Recap (5 min)** — what we decided last time, what we're building today
 - **Ground the specs (10 min)** — quick whiteboard: map features to PocketBase collection names and Quasar component names. Use `@.agents/skills/pocketbase.md` and `@.agents/skills/quasar.md` for reference.
-- **Epic 1: Project Bootstrap (50 min)** — Quasar init, PocketBase init, build pipeline, landing page
-- **Q&A (10 min)** — agent output, issues, questions
-- **Epic 2: PocketBase Schema (25 min)** — create collections with field definitions, import TACO data. Recall `docs/MEAL-PARSER-STRATEGY.md` — the food schema we designed there maps to our PocketBase collection.
-- **Epic 3: Basic Meal Logging UI (40 min)** — layout, form, food selector, quantity input. Use `@.agents/skills/agent-browser.md` to verify.
-- **Epic 4: Nutrition Calculation (30 min)** — real-time calorie/macro totals, persist on meal entry
-- **Q&A (10 min)** — what worked, what didn't, what's next
+- **Dispatch 1: Epics 1–4 (55 min)** — instruct the agent to build: project bootstrap, PocketBase schema with TACO data, meal logging UI, and nutrition calculation. Wait for the agent to finish, then review the output and verify with `@.agents/skills/agent-browser.md`.
+- **Dispatch 2: Epics 5–8 (55 min)** — provide your OpenCode Go API key to the agent so it can configure the `.env` file for the photo feature. Then instruct the agent to build: meal history with date navigation, environment variables, weekly/monthly charts, and photo-based meal registration (instructor demo). Review and verify.
+- **Buffer / Q&A (55 min)** — overflow, catch-up, fix anything that didn't work, final questions
 
-**Checkpoint:** Your screen shows a form with a food selector, a quantity input, and a running calorie total that updates in real-time.
+**Checkpoint:** Your screen shows a complete nutrition tracker: meal logging with food search, history with dates, charts showing weekly progress, and the photo feature demonstrated.
 
 ### Deliverables
 
-- Quasar SPA running and served by PocketBase
-- PocketBase collections created and seeded with TACO data
-- Working meal logging with nutrition calculation
-
----
-
-## Lesson 4: Build, Review, Ship (3h)
-
-**WHY:** The core works. Now we finish the product — history, charts, and the AI-powered photo feature.
-
-**HOW:** Same agent workflow, less hand-holding. You drive; the agent assists.
-
-**WHAT:**
-
-- **Recap (5 min)** — what we built last time, what's left
-- **Epic 5: Meal History & Daily View (45 min)** — history page, date grouping, daily totals, edit/delete. Use `@.agents/skills/agent-browser.md` to verify.
-- **Epic 6: Environment Variables & Config (15 min)** — `.env.example`, `$os.getenv()`, gitignore, security basics
-- **Q&A (10 min)** — progress check, issues
-- **Epic 7: Weekly & Monthly Charts (35 min)** — ApexCharts integration (use `@.agents/skills/apexcharts.md`), time-series graphs, macro toggles
-- **Epic 8: Photo-Based Meal Registration (30 min)** — instructor demo / code-along: camera/upload, PocketBase hook, Mimo V2.5 (image recognition model accessible through OpenCode Go — see `docs/MEAL-PARSER-STRATEGY.md` for the full design), validation. Form autofill is shown but can be finished after the workshop.
-- **Workshop Q&A (20 min)** — questions about the workflow, the tools, the code, or anything else
-- **Buffer (20 min)** — overflow, final thoughts, wrap-up
-
-**Checkpoint:** Your screen shows a meal history page with dates and totals, and a chart showing weekly calories. You watched the photo feature being built and understand the pipeline: camera → PocketBase hook → Mimo V2.5 → structured data.
-
-### Deliverables
-
+- Complete NutriVibe app with all features working
+- Meal logging with nutrition calculation
 - Meal history with edit/delete
 - Weekly/monthly charts
 - Photo-based meal registration demonstrated
+
+---
+
+## Lesson 4: Testing, Hosting, and Orchestration (3h)
+
+**WHY:** The app works on your machine. Now we prove it works reliably, make it available to users, and learn how to manage multiple AI agents for complex projects.
+
+**HOW:** Instruct the agent to write tests for you, deploy to production with minimal infrastructure, then explore how to orchestrate agents for larger workflows.
+
+**WHAT:**
+
+- **Recap (5 min)** — what we built, why testing and hosting matter
+- **Testing with the agent (55 min)**
+  - What is E2E testing? Why Playwright? (10 min)
+  - Run existing tests: navigate to `playwright/` directory, run `npx playwright test`, verify all tests pass, explore the HTML report (15 min)
+  - Instruct the agent to write more tests: "Write Playwright tests for the meal logging flow — open modal, search food, select, set quantity, save" (20 min)
+  - Review the agent's test output, run the new tests, debug any failures together (10 min)
+- **Q&A (5 min)** — testing questions, agent workflow
+- **Hosting with cPanel + PM2 (55 min)**
+  - Why cPanel + PM2? Cheapest option — Node.js is only needed to run PM2, not the app itself (10 min)
+  - Build the app: `cd src && quasar build` (outputs to `pocketbase/pb_public/`)
+  - Upload to cPanel: upload the entire `pocketbase/` directory to your home directory via File Manager or FTP. Don't touch `public_html` — PocketBase serves the SPA from its own `pb_public/`.
+  - Only edit `public_html/.htaccess` to proxy traffic to PocketBase's internal port 8090
+  - Deploy with the agent:
+    - Provide the agent with SSH credentials and server details
+    - Instruct the agent: "Install [mise](https://mise.jdx.dev/) and use it to install Node.js (needed to run PM2, not the app itself). Then install PM2 and configure it to run PocketBase. Set it up to start on boot. Edit public_html/.htaccess to proxy traffic from port 80/443 to PocketBase's internal port 8090."
+    - Review the agent's commands and output
+    - Verify the deployment: access the app via domain, test basic functionality
+  - Updating the app: rebuild locally, upload new files, restart with `pm2 restart`
+- **Q&A (5 min)** — deployment questions, troubleshooting
+- **Orchestration with agent-starter-kit (55 min)**
+  - What is orchestration? Managing multiple AI agents for complex workflows (10 min)
+  - Introduction to [ntorga/agent-starter-kit](https://github.com/ntorga/agent-starter-kit) (10 min)
+  - Demo: how the starter kit structures multi-agent projects (15 min)
+  - Use cases: when to use orchestration vs single-agent workflows (10 min)
+  - Q&A and next steps (10 min)
+
+**Checkpoint:** You've instructed the agent to write E2E tests and seen them pass. You understand how to deploy the app to cPanel with PM2. You've seen how agent-starter-kit orchestrates multiple agents and know when to use it.
+
+### Deliverables
+
+- Playwright test suite with tests written by the agent
+- App deployed to production via cPanel + PM2
+- Understanding of agent orchestration concepts and tools
 
 ---
 
@@ -149,8 +165,8 @@
 ```
 Lesson 1: Stock the pantry — set up tools and learn how AI thinks
 Lesson 2: Read the recipe — understand the domain and write the specs
-Lesson 3: Prep the ingredients — translate specs into working code
-Lesson 4: Cook and serve — build remaining features
+Lesson 3: Cook — build the entire app with the agent
+Lesson 4: Taste, serve, and scale — test, deploy, and orchestrate agents
 ```
 
 ---
@@ -186,6 +202,11 @@ Lesson 4: Cook and serve — build remaining features
 - **Superuser** — PocketBase admin account with full access to the admin UI and API
 - **Pinia** — Vue's state management library for sharing data between components
 - **Boot file** — Quasar's way to run code when the app starts (used for SDK setup)
+- **E2E testing** — End-to-end testing: simulating real user interactions in a browser to verify the app works
+- **Playwright** — a testing framework that automates browser interactions for E2E tests
+- **cPanel** — a web hosting control panel that provides a GUI for managing websites, files, databases, and more
+- **PM2** — a production process manager for Node.js applications that keeps your app running even after crashes or server reboots
+- **Orchestration** — coordinating multiple AI agents to work together on complex tasks, each handling a specific part of the workflow
 
 ---
 
