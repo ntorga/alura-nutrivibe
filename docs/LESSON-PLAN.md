@@ -137,8 +137,31 @@
   - Upload to cPanel: upload the entire `pocketbase/` directory to your home directory via File Manager or FTP. Don't touch `public_html` — PocketBase serves the SPA from its own `pb_public/`.
   - Only edit `public_html/.htaccess` to proxy traffic to PocketBase's internal port 8090
   - Deploy with the agent:
-    - Provide the agent with SSH credentials and server details
-    - Instruct the agent: "Install [mise](https://mise.jdx.dev/) and use it to install Node.js (needed to run PM2, not the app itself). Then install PM2 and configure it to run PocketBase. Set it up to start on boot. Edit public_html/.htaccess to proxy traffic from port 80/443 to PocketBase's internal port 8090."
+    - Instruct the agent:
+
+      ```text
+      SSH into my server at `<HOST>` port `<PORT>` as user `<USERNAME>`
+      (password: `<PASSWORD>` / key: `<PATH_TO_KEY>`).
+
+      Upload the pocketbase/ directory to my home directory.
+
+      Install mise (https://mise.jdx.dev/) and use it to install Node.js
+      (needed to run PM2, not the app itself).
+
+      Install PM2 and configure it to run PocketBase.
+
+      Make pocketbase executable with `chmod +x ~/pocketbase/pocketbase`.
+
+      Start PocketBase with PM2 and save the configuration:
+      `pm2 start ~/pocketbase/pocketbase --name pocketbase -- serve --http=0.0.0.0:8090`
+      `pm2 save`
+
+      Add a cron job via crontab to restore PM2 processes on reboot:
+      `(crontab -l 2>/dev/null; echo "@reboot /home/<USERNAME>/.local/share/mise/shims/pm2 resurrect") | crontab -`
+
+      Edit public_html/.htaccess to proxy traffic from port 80/443
+      to PocketBase's internal port 8090.
+      ```
     - Review the agent's commands and output
     - Verify the deployment: access the app via domain, test basic functionality
   - Updating the app: rebuild locally, upload new files, restart with `pm2 restart`

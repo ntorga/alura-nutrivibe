@@ -104,7 +104,7 @@ async function recognizeMeal() {
     const formData = new FormData()
     formData.append('image', selectedFile.value)
 
-    const fetchResponse = await fetch('http://127.0.0.1:8090/api/meals/parse', {
+    const fetchResponse = await fetch('/api/meals/parse', {
       method: 'POST',
       body: formData
     })

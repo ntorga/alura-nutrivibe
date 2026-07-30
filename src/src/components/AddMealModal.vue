@@ -355,7 +355,7 @@ async function onSearch(query) {
   }
   try {
     const fetchResponse = await fetch(
-      `http://127.0.0.1:8090/api/foods/search?q=${encodeURIComponent(query)}`
+      `/api/foods/search?q=${encodeURIComponent(query)}`
     );
     if (!fetchResponse.ok) throw new Error("Search failed");
     const responseData = await fetchResponse.json();
