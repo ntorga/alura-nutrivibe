@@ -1,0 +1,32 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "plan": {
+      "disable": true
+    },
+    "build": {
+      "temperature": 0.3,
+      "top_p": 0.85,
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 14336
+      },
+      "reasoning": {
+        "effort": "high"
+      },
+      "reasoningEffort": "high"
+    },
+    "general": {
+      "temperature": 0.2,
+      "top_p": 0.7,
+      "thinking": {
+        "type": "enabled",
+        "budgetTokens": 4096
+      },
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoningEffort": "low"
+    }
+  }
+}
