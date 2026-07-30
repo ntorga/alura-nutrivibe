@@ -152,9 +152,28 @@
 
       Make pocketbase executable with `chmod +x ~/pocketbase/pocketbase`.
 
-      Start PocketBase with PM2 and save the configuration:
-      `pm2 start ~/pocketbase/pocketbase --name pocketbase -- serve --http=0.0.0.0:8090`
-      `pm2 save`
+      Start PocketBase with PM2. Create an ecosystem.config.js that loads
+      env vars from .env using dotenv (needed for AI meal parsing):
+
+      ```js
+      require('dotenv').config()
+
+      module.exports = {
+        apps: [{
+          name: "pocketbase",
+          script: "./pocketbase",
+          args: "serve --http=0.0.0.0:8090",
+          cwd: "/home/<USERNAME>/pocketbase",
+          autorestart: true,
+          watch: false,
+          max_memory_restart: "1G",
+          env: process.env
+        }]
+      };
+      ```
+
+      Install dotenv first: `npm install dotenv`
+      Then: `pm2 start ecosystem.config.js` and `pm2 save`
 
       Add a cron job via crontab to restore PM2 processes on reboot:
       `(crontab -l 2>/dev/null; echo "@reboot /home/<USERNAME>/.local/share/mise/shims/pm2 resurrect") | crontab -`
